@@ -2,6 +2,7 @@ package me.ialistannen.livingparchment.backend
 
 import me.ialistannen.livingparchment.backend.di.DaggerBackendMainComponent
 import me.ialistannen.livingparchment.common.model.Book
+import java.util.*
 
 fun main(args: Array<String>) {
     println("YAY")
@@ -12,7 +13,15 @@ fun main(args: Array<String>) {
 
     val bookRepository = mainComponent.getBookRepository()
 
-    val book = Book("Drachenreiter", listOf("hm"), 20, "123456", "de")
+    val book = Book(
+            "Drachenreiter",
+            200,
+            "123456",
+            "German",
+            Date(),
+            authors = listOf("Cornelia", "Funke"),
+            genre = listOf("Fantasy", "Children")
+    )
 
     bookRepository.addBook(book)
 }

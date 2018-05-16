@@ -1,12 +1,16 @@
 package me.ialistannen.livingparchment.backend.storage.sql
 
 import me.ialistannen.livingparchment.backend.storage.BookRepository
+import me.ialistannen.livingparchment.backend.util.camelToSnakeCase
 import me.ialistannen.livingparchment.common.api.query.QueryType
 import me.ialistannen.livingparchment.common.model.Book
+import me.ialistannen.livingparchment.common.serialization.toJsonTree
 import org.jdbi.v3.core.Jdbi
-import org.jdbi.v3.core.statement.PreparedBatch
+import org.jdbi.v3.core.statement.SqlStatement
+import org.jdbi.v3.core.statement.Update
 import javax.inject.Inject
 import kotlin.reflect.KProperty
+import kotlin.reflect.jvm.javaType
 
 class SqlBookRepository @Inject constructor(
         private val jdbi: Jdbi
@@ -20,34 +24,34 @@ class SqlBookRepository @Inject constructor(
         jdbi.useHandle<RuntimeException> {
             removeBook(book)
 
-            it.createUpdate("INSERT INTO Books (isbn) VALUES (:isbn)")
-                    .bind("isbn", book.isbn)
+            it.createUpdate("""
+                INSERT INTO Books (isbn, title, language, page_count, publisher, published, extra)
+                VALUES (:isbn, :title, :language, :page_count, :publisher, :published, :extra)
+                """)
+                    .bindProperty(book::isbn)
+                    .bindProperty(book::title)
+                    .bindProperty(book::language)
+                    .bindProperty(book::pageCount)
+                    .bindProperty(book::publisher)
+                    .bindProperty(book::published)
+                    .bindJsonProperty(book::extra)
                     .execute()
-
-            val preparedBatch = it.prepareBatch(
-                    "INSERT INTO BookAttributes (isbn, name, value) VALUES (?, ?, ?)"
-            )
-            preparedBatch.addPropertyWithIsbn(book, book::title)
-            preparedBatch.addPropertyWithIsbn(book, book::language)
-            preparedBatch.addPropertyWithIsbn(book, book::pageCount)
-            preparedBatch.addListPropertyWithIsbn(book, book::genre)
-            preparedBatch.addListPropertyWithIsbn(book, book::author)
-
-            for ((name, value) in book.extra) {
-                preparedBatch.add(book.isbn, name, value)
-            }
-            preparedBatch.execute()
         }
     }
 
-    private fun PreparedBatch.addPropertyWithIsbn(book: Book, property: KProperty<*>) {
-        add(book.isbn, property.name, property.getter.call().toString())
+    private fun Update.bindProperty(property: KProperty<*>): Update {
+        return bindByType(
+                property.name.camelToSnakeCase(),
+                property.getter.call(),
+                property.returnType.javaType
+        )
     }
 
-    private fun PreparedBatch.addListPropertyWithIsbn(book: Book, property: KProperty<List<*>>) {
-        for (value in property.getter.call()) {
-            add(book.isbn, property.name, value.toString())
-        }
+    private fun <T : SqlStatement<T>> SqlStatement<T>.bindJsonProperty(property: KProperty<*>): T {
+        return bind(
+                property.name.camelToSnakeCase(),
+                property.getter.call().toJsonTree()
+        )
     }
 
     override fun removeBook(book: Book) {
@@ -59,13 +63,11 @@ class SqlBookRepository @Inject constructor(
     }
 
     override fun getAllBooks(): List<Book> {
-        jdbi.useHandle<RuntimeException> {
-
-        }
+        return getBooksForQuery(QueryType.RETURN_ALL, "", "")
     }
 
     override fun getBooksForQuery(type: QueryType, attribute: String, query: String): List<Book> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return emptyList()
     }
 
     /**
@@ -75,17 +77,14 @@ class SqlBookRepository @Inject constructor(
         jdbi.useHandle<RuntimeException> {
             it.createUpdate("""
             CREATE TABLE IF NOT EXISTS Books (
-              isbn VARCHAR(13) PRIMARY KEY
+              isbn VARCHAR(13) PRIMARY KEY,
+              title TEXT NOT NULL,
+              language VARCHAR(20),
+              page_count INTEGER,
+              publisher TEXT,
+              published DATE,
+              EXTRA JSON
             );""".trimIndent()
-            ).execute()
-
-            it.createUpdate("""
-            CREATE TABLE IF NOT EXISTS BookAttributes (
-              isbn VARCHAR(13) REFERENCES Books(isbn) ON DELETE CASCADE ON UPDATE CASCADE,
-              name VARCHAR(40) NOT NULL,
-              value TEXT NOT NULL
-            );
-            """.trimIndent()
             ).execute()
         }
     }
