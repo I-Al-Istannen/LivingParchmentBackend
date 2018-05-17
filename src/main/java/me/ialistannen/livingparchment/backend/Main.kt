@@ -1,5 +1,6 @@
 package me.ialistannen.livingparchment.backend
 
+import kotlinx.coroutines.experimental.runBlocking
 import me.ialistannen.livingparchment.backend.di.DaggerBackendMainComponent
 import me.ialistannen.livingparchment.common.api.query.QueryType
 import me.ialistannen.livingparchment.common.model.Book
@@ -24,40 +25,42 @@ fun main(args: Array<String>) {
             genre = listOf("Fantasy", "Children")
     )
 
-    bookRepository.addBook(book)
+    runBlocking {
+        bookRepository.addBook(book)
 
-    bookRepository.getAllBooks().forEach { println(it) }
+        bookRepository.getAllBooks().forEach { println(it) }
 
-    println("For query exact match")
-    bookRepository.getBooksForQuery(
-            QueryType.EXACT_MATCH, "isbn", "123456"
-    ).forEach { println(it) }
+        println("For query exact match")
+        bookRepository.getBooksForQuery(
+                QueryType.EXACT_MATCH, "isbn", "123456"
+        ).forEach { println(it) }
 
-    println("For query part")
-    bookRepository.getBooksForQuery(
-            QueryType.PART, "isbn", "34"
-    ).forEach { println(it) }
+        println("For query part")
+        bookRepository.getBooksForQuery(
+                QueryType.PART, "isbn", "34"
+        ).forEach { println(it) }
 
-    println("For query regex")
-    bookRepository.getBooksForQuery(
-            QueryType.REGEX_MATCH, "isbn", "[\\d]+"
-    ).forEach { println(it) }
+        println("For query regex")
+        bookRepository.getBooksForQuery(
+                QueryType.REGEX_MATCH, "isbn", "[\\d]+"
+        ).forEach { println(it) }
 
-    println()
-    println("==== JSON ====")
-    println()
-    println("For query exact match json")
-    bookRepository.getBooksForQuery(
-            QueryType.EXACT_MATCH, "authors", "Cornelia"
-    ).forEach { println(it) }
+        println()
+        println("==== JSON ====")
+        println()
+        println("For query exact match json")
+        bookRepository.getBooksForQuery(
+                QueryType.EXACT_MATCH, "authors", "Cornelia"
+        ).forEach { println(it) }
 
-    println("For query part json")
-    bookRepository.getBooksForQuery(
-            QueryType.PART, "authors", "Cornelia"
-    ).forEach { println(it) }
+        println("For query part json")
+        bookRepository.getBooksForQuery(
+                QueryType.PART, "authors", "Cornelia"
+        ).forEach { println(it) }
 
-    println("For query regex json")
-    bookRepository.getBooksForQuery(
-            QueryType.REGEX_MATCH, "authors", ".+Corne.+"
-    ).forEach { println(it) }
+        println("For query regex json")
+        bookRepository.getBooksForQuery(
+                QueryType.REGEX_MATCH, "authors", ".+Corne.+"
+        ).forEach { println(it) }
+    }
 }

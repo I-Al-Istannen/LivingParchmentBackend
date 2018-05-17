@@ -9,8 +9,8 @@ import org.jdbi.v3.core.Jdbi
  *
  * @param consumer the consumer for the handle
  */
-fun Jdbi.using(consumer: Handle.() -> Unit) {
-    useHandle<StorageException> {
+suspend fun Jdbi.using(consumer: suspend Handle.() -> Unit) {
+    open().use {
         try {
             it.consumer()
         } catch (e: Exception) {

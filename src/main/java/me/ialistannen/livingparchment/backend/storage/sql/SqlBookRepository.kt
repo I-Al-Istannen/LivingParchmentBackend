@@ -30,7 +30,7 @@ class SqlBookRepository @Inject constructor(
         createBookTables()
     }
 
-    override fun addBook(book: Book) {
+    override suspend fun addBook(book: Book) {
         jdbi.using {
             // remove it if it already exists
             removeBook(book)
@@ -65,7 +65,7 @@ class SqlBookRepository @Inject constructor(
         )
     }
 
-    override fun removeBook(book: Book) {
+    override suspend fun removeBook(book: Book) {
         jdbi.using {
             createUpdate("DELETE FROM Books WHERE isbn = :isbn")
                     .bind("isbn", book.isbn)
@@ -73,7 +73,7 @@ class SqlBookRepository @Inject constructor(
         }
     }
 
-    override fun getAllBooks(): List<Book> {
+    override suspend fun getAllBooks(): List<Book> {
         var result: List<Book> = emptyList()
         jdbi.using {
             result = createQuery("SELECT * FROM Books")
@@ -83,7 +83,8 @@ class SqlBookRepository @Inject constructor(
         return result
     }
 
-    override fun getBooksForQuery(type: QueryType, attribute: String, query: String): List<Book> {
+    override suspend fun getBooksForQuery(type: QueryType, attribute: String,
+                                          query: String): List<Book> {
         if (type == QueryType.RETURN_ALL) {
             return getAllBooks()
         }
@@ -95,7 +96,7 @@ class SqlBookRepository @Inject constructor(
         return getBooksForJsonQuery(type, attribute, query)
     }
 
-    private fun getBooksForFieldQuery(type: QueryType, attribute: String, query: String): List<Book> {
+    private suspend fun getBooksForFieldQuery(type: QueryType, attribute: String, query: String): List<Book> {
         if (attribute !in fieldAttributes) {
             throw StorageException("Key is not allowed. Valid are: '$fieldAttributes'")
         }
@@ -115,7 +116,7 @@ class SqlBookRepository @Inject constructor(
         }
     }
 
-    private fun getBooksForJsonQuery(type: QueryType, attribute: String, query: String): List<Book> {
+    private suspend fun getBooksForJsonQuery(type: QueryType, attribute: String, query: String): List<Book> {
         if (attribute !in allowedJsonAttributes) {
             throw StorageException("Key is not allowed. Valid are: '$allowedJsonAttributes'")
         }
@@ -135,8 +136,8 @@ class SqlBookRepository @Inject constructor(
         }
     }
 
-    private fun performBookQuery(query: String,
-                                 querySupplier: Handle.() -> Query?): List<Book> {
+    private suspend fun performBookQuery(query: String,
+                                         querySupplier: Handle.() -> Query?): List<Book> {
 
         var result = listOf<Book>()
 

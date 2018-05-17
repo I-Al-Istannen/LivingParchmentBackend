@@ -14,7 +14,7 @@ interface BookRepository {
      * @param book the book to add
      * @throws StorageException if an error occurs
      */
-    fun addBook(book: Book)
+    suspend fun addBook(book: Book)
 
     /**
      * Removes the given book from the repository.
@@ -22,14 +22,14 @@ interface BookRepository {
      * @param book the book to remove
      * @throws StorageException if an error occurs
      */
-    fun removeBook(book: Book)
+    suspend fun removeBook(book: Book)
 
     /**
      * Returns all books.
      *
      * @throws StorageException if an error occurs
      */
-    fun getAllBooks(): List<Book>
+    suspend fun getAllBooks(): List<Book>
 
     /**
      * Searches books in the repository.
@@ -40,5 +40,5 @@ interface BookRepository {
      * @return all books matching the query
      * @throws StorageException if an error occurs
      */
-    fun getBooksForQuery(type: QueryType, attribute: String, query: String): List<Book>
+    suspend fun getBooksForQuery(type: QueryType, attribute: String, query: String): List<Book>
 }
