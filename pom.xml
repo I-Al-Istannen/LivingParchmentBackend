@@ -176,11 +176,17 @@
       <groupId>org.jdbi</groupId>
       <artifactId>jdbi3-kotlin-sqlobject</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>42.2.2</version>
+    </dependency>
+
+    <!--HTML parsing-->
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.11.3</version>
     </dependency>
 
   </dependencies>

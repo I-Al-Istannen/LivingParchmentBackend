@@ -2,6 +2,7 @@ package me.ialistannen.livingparchment.backend
 
 import kotlinx.coroutines.experimental.runBlocking
 import me.ialistannen.livingparchment.backend.di.DaggerBackendMainComponent
+import me.ialistannen.livingparchment.backend.fetching.goodreads.GoodReadFetcher
 import me.ialistannen.livingparchment.common.api.query.QueryType
 import me.ialistannen.livingparchment.common.model.Book
 import java.util.*
@@ -28,7 +29,13 @@ fun main(args: Array<String>) {
     runBlocking {
         bookRepository.addBook(book)
 
+        println("==== All ====")
+        println()
         bookRepository.getAllBooks().forEach { println(it) }
+
+        println()
+        println("==== Field ====")
+        println()
 
         println("For query exact match")
         bookRepository.getBooksForQuery(
@@ -62,5 +69,10 @@ fun main(args: Array<String>) {
         bookRepository.getBooksForQuery(
                 QueryType.REGEX_MATCH, "authors", ".+Corne.+"
         ).forEach { println(it) }
+    }
+
+    runBlocking {
+        println(GoodReadFetcher().fetch("9780439321617"))
+        println(GoodReadFetcher().fetch("1596063084"))
     }
 }
