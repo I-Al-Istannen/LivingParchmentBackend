@@ -47,7 +47,7 @@ class BookRowMapper : RowMapper<Book> {
         val title = rs.getString("title")
         val pageCount = rs.getInt("page_count")
         val language = rs.getString("language")
-        val published = rs.getDate("published")
+        val publishedMillis = rs.getDate("published", UTC)
         val publisher = rs.getString("publisher")
         val extra = rs.getString("extra").fromJson<Map<String, Any>>()
 
@@ -56,10 +56,11 @@ class BookRowMapper : RowMapper<Book> {
                 isbn = isbn,
                 pageCount = pageCount,
                 language = language,
-                published = Date(published.time),
+                published = Date(publishedMillis.time),
                 publisher = publisher,
                 extra = extra
         )
     }
-
 }
+
+private val UTC: Calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))

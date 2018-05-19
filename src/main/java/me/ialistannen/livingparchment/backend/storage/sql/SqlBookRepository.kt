@@ -50,11 +50,13 @@ class SqlBookRepository @Inject constructor(
         }
     }
 
-    private fun Update.bindProperty(property: KProperty<*>): Update {
+    private fun <T> Update.bindProperty(property: KProperty<T>,
+                                        transform: (T) -> Any? = { it }): Update {
+        val transformed = transform.invoke(property.getter.call())
         return bindByType(
                 property.name.camelToSnakeCase(),
-                property.getter.call(),
-                property.returnType.javaType
+                transformed,
+                transformed?.javaClass ?: property.returnType.javaType
         )
     }
 
@@ -108,7 +110,7 @@ class SqlBookRepository @Inject constructor(
                 QueryType.EXACT_MATCH ->
                     createQuery("$prefix WHERE $attribute = :query")
                 QueryType.PART ->
-                    createQuery("$prefix WHERE $attribute LIKE '%' || :query || '%'")
+                    createQuery("$prefix WHERE $attribute ILIKE '%' || :query || '%'")
                 QueryType.REGEX_MATCH ->
                     createQuery("$prefix WHERE $attribute ~* :query")
                 else -> null
@@ -130,7 +132,7 @@ class SqlBookRepository @Inject constructor(
                 QueryType.REGEX_MATCH ->
                     createQuery("$prefix WHERE extra->>'$attribute' ~* :query")
                 QueryType.PART ->
-                    createQuery("$prefix WHERE extra->>'$attribute' LIKE '%' || :query || '%'")
+                    createQuery("$prefix WHERE extra->>'$attribute' ILIKE '%' || :query || '%'")
                 else -> null
             }
         }
