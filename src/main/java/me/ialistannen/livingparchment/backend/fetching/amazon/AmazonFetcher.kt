@@ -2,7 +2,7 @@ package me.ialistannen.livingparchment.backend.fetching.amazon
 
 import me.ialistannen.livingparchment.backend.fetching.BaseFetcher
 import me.ialistannen.livingparchment.backend.fetching.FetchException
-import me.ialistannen.livingparchment.backend.fetching.getPage
+import me.ialistannen.livingparchment.backend.fetching.WebpageUtil
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import java.text.SimpleDateFormat
@@ -21,7 +21,7 @@ class AmazonFetcher : BaseFetcher() {
                 ?.firstOrNull()
                 ?.absUrl("href")
                 ?: return null
-        return getPage(newUrl).await()
+        return WebpageUtil.getPage(newUrl).await()
     }
 
     override fun extractTitle(document: Document): String = document

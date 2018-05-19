@@ -11,6 +11,7 @@ import org.jdbi.v3.sqlobject.kotlin.KotlinSqlObjectPlugin
 @Module
 open class JdbiModule {
 
+    @ApplicationScope
     @Provides
     fun provideJdbi(): Jdbi {
         return Jdbi.create(

@@ -12,7 +12,7 @@ abstract class BaseFetcher : BookFetcher {
 
     override suspend fun fetch(isbn: String): Book? {
         return try {
-            val document = getPage(getQueryUrl(isbn)).await()
+            val document = WebpageUtil.getPage(getQueryUrl(isbn)).await()
             val processed = preprocessQueryPage(document) ?: return null
 
             extractFromPage(processed)
