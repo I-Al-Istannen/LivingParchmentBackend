@@ -4,7 +4,6 @@ import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import java.io.File
 
 /**
  * Fetches a web page
@@ -14,10 +13,9 @@ import java.io.File
  */
 fun getPage(url: String): Deferred<Document> {
     return async {
-        //                Jsoup.connect(url)
-//                .userAgent("LivingParchment")
-//                .get()
-
-        Jsoup.parse(File("/tmp/goodreads.html").readText())
+        Jsoup.connect(url)
+                .userAgent("LivingParchment")
+                .header("Accept-Language", "de,en-US;q=0.7,en;q=0.3") // german is nice
+                .get()
     }
 }

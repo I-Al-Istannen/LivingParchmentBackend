@@ -1,22 +1,41 @@
 package me.ialistannen.livingparchment.backend.fetching
 
+import me.ialistannen.livingparchment.backend.util.logger
 import me.ialistannen.livingparchment.common.model.Book
 import org.jsoup.nodes.Document
 import java.util.*
+import java.util.logging.Level
 
 abstract class BaseFetcher : BookFetcher {
-    override suspend fun fetch(isbn: String): Book? {
-        val document = getPage(getQueryUrl(isbn)).await()
 
+    private val logger by logger()
+
+    override suspend fun fetch(isbn: String): Book? {
         return try {
-            extractFromPage(document)
+            val document = getPage(getQueryUrl(isbn)).await()
+            val processed = preprocessQueryPage(document) ?: return null
+
+            extractFromPage(processed)
         } catch (e: Exception) {
-            e.printStackTrace()
+            logger.log(Level.WARNING, "Error fetching a book", e)
             null
         }
     }
 
     protected abstract fun getQueryUrl(isbn: String): String
+
+    /**
+     * Performs some preprocessing with the query page.
+     *
+     * This method is suspending as you may need to perform additional webqueries to load the
+     * detail pages, if the query didn't redirect you to the result page.
+     *
+     * @param document the query page
+     * @return the document to pass to [extractFromPage] or null to indicate that no book was found
+     */
+    protected open suspend fun preprocessQueryPage(document: Document): Document? {
+        return document
+    }
 
     protected open fun extractFromPage(document: Document): Book? {
         val title = extractTitle(document)

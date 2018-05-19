@@ -12,6 +12,13 @@ class GoodReadFetcher : BaseFetcher() {
         return "https://www.goodreads.com/search?q=$isbn"
     }
 
+    override suspend fun preprocessQueryPage(document: Document): Document? {
+        if (document.getElementsByClass("authorName").isEmpty()) {
+            return null
+        }
+        return document
+    }
+
     override fun extractTitle(document: Document): String = document
             .getElementById("bookTitle")
             .text()

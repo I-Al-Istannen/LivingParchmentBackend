@@ -2,6 +2,7 @@ package me.ialistannen.livingparchment.backend.fetching.amazon
 
 import me.ialistannen.livingparchment.backend.fetching.BaseFetcher
 import me.ialistannen.livingparchment.backend.fetching.FetchException
+import me.ialistannen.livingparchment.backend.fetching.getPage
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import java.text.SimpleDateFormat
@@ -11,6 +12,16 @@ class AmazonFetcher : BaseFetcher() {
 
     override fun getQueryUrl(isbn: String): String {
         return "https://www.amazon.de/s/&field-keywords=$isbn"
+    }
+
+    override suspend fun preprocessQueryPage(document: Document): Document? {
+        val newUrl = document.getElementsByClass("s-item-container")
+                .firstOrNull()
+                ?.getElementsByClass("a-link-normal")
+                ?.firstOrNull()
+                ?.absUrl("href")
+                ?: return null
+        return getPage(newUrl).await()
     }
 
     override fun extractTitle(document: Document): String = document
