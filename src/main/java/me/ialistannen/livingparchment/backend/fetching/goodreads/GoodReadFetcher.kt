@@ -69,6 +69,14 @@ class GoodReadFetcher : BaseFetcher() {
                 .filter { it.attr("href").startsWith("/genre") }
                 .map { it.text().trim() }
     }
+
+    override fun addExtra(document: Document): Map<String, Any> {
+        val description = (document.getElementById("description")
+                ?.child(1)
+                ?.text()
+                ?: return emptyMap())
+        return mapOf("description" to description)
+    }
 }
 
 private val EXTRACTION_REGEX = """Published (.+)by (.+)""".toRegex()

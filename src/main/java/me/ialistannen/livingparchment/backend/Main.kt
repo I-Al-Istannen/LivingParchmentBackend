@@ -2,7 +2,7 @@ package me.ialistannen.livingparchment.backend
 
 import kotlinx.coroutines.experimental.runBlocking
 import me.ialistannen.livingparchment.backend.di.DaggerBackendMainComponent
-import me.ialistannen.livingparchment.backend.fetching.amazon.AmazonFetcher
+import me.ialistannen.livingparchment.backend.fetching.goodreads.GoodReadFetcher
 import me.ialistannen.livingparchment.common.api.query.QueryType
 import me.ialistannen.livingparchment.common.model.Book
 import java.util.*
@@ -75,7 +75,7 @@ fun main(args: Array<String>) {
     println()
     println()
     runBlocking {
-        println(AmazonFetcher().fetch("9780439321617"))
-        println(AmazonFetcher().fetch("1596063084"))
+        println(GoodReadFetcher().fetch("9780439321617"))
+        println(GoodReadFetcher().fetch("1596063084"))
     }
 }

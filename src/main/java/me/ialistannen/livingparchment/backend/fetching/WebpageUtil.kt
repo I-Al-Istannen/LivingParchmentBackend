@@ -18,6 +18,6 @@ fun getPage(url: String): Deferred<Document> {
 //                .userAgent("LivingParchment")
 //                .get()
 
-        Jsoup.parse(File("/tmp/test.html").readText())
+        Jsoup.parse(File("/tmp/goodreads.html").readText())
     }
 }

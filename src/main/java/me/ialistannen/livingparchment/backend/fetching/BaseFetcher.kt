@@ -8,7 +8,12 @@ abstract class BaseFetcher : BookFetcher {
     override suspend fun fetch(isbn: String): Book? {
         val document = getPage(getQueryUrl(isbn)).await()
 
-        return extractFromPage(document)
+        return try {
+            extractFromPage(document)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 
     protected abstract fun getQueryUrl(isbn: String): String
