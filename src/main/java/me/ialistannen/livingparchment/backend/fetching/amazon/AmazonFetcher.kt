@@ -2,7 +2,6 @@ package me.ialistannen.livingparchment.backend.fetching.amazon
 
 import me.ialistannen.livingparchment.backend.fetching.BaseFetcher
 import me.ialistannen.livingparchment.backend.fetching.FetchException
-import me.ialistannen.livingparchment.common.model.Book
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import java.text.SimpleDateFormat
@@ -10,30 +9,8 @@ import java.util.*
 
 class AmazonFetcher : BaseFetcher() {
 
-
     override fun getQueryUrl(isbn: String): String {
         return "https://www.amazon.de/s/&field-keywords=$isbn"
-    }
-
-    override fun extractFromPage(document: Document): Book? {
-        val title = extractTitle(document)
-        val pageCount = extractPageCount(document)
-        val isbn = extractIsbn(document)
-        val language = extractLanguage(document)
-        val publishInformation = extractPublished(document)
-        val authors = extractAuthors(document)
-        val genre = extractGenre(document)
-
-        return Book(
-                title,
-                pageCount,
-                isbn,
-                language,
-                publisher = publishInformation.first,
-                published = publishInformation.second,
-                authors = authors,
-                genre = genre
-        )
     }
 
     override fun extractTitle(document: Document): String = document
@@ -129,6 +106,18 @@ class AmazonFetcher : BaseFetcher() {
 
     override fun extractGenre(document: Document): List<String> {
         return emptyList()
+    }
+
+    override fun addExtra(document: Document): Map<String, Any> {
+        val description = document
+                .getElementsByAttributeValue("data-feature-name", "bookDescription")
+                .firstOrNull()
+                ?.getElementsByTag("noscript")
+                ?.firstOrNull()
+                ?.text()
+                ?: return emptyMap()
+
+        return mapOf("description" to description)
     }
 
     /**

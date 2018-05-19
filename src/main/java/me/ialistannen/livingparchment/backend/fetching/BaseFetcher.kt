@@ -30,22 +30,50 @@ abstract class BaseFetcher : BookFetcher {
                 publisher = publishInformation.first,
                 published = publishInformation.second,
                 authors = authors,
-                genre = genre
+                genre = genre,
+                extra = addExtra(document)
         )
     }
 
+    /**
+     * Extracts the title.
+     */
     protected abstract fun extractTitle(document: Document): String
 
+    /**
+     * Extracts the page count.
+     */
     protected abstract fun extractPageCount(document: Document): Int
 
+    /**
+     * Extracts the ISBN.
+     */
     protected abstract fun extractIsbn(document: Document): String
 
+    /**
+     * Extracts the language.
+     */
     protected abstract fun extractLanguage(document: Document): String
 
+    /**
+     * Extracts publish information. Format is `<Publisher, Date published>`.
+     */
     protected abstract fun extractPublished(document: Document): Pair<String, Date>
 
+    /**
+     * Extracts the authors
+     */
     protected abstract fun extractAuthors(document: Document): List<String>
 
+    /**
+     * Extracts the genre
+     */
     protected abstract fun extractGenre(document: Document): List<String>
 
+    /**
+     * Adds additional information.
+     */
+    protected open fun addExtra(document: Document): Map<String, Any> {
+        return emptyMap()
+    }
 }
