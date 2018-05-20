@@ -26,10 +26,6 @@ class SqlBookRepository @Inject constructor(
             "authors", "genre"
     )
 
-    init {
-        createBookTables()
-    }
-
     override suspend fun addBook(book: Book) {
         jdbi.using {
             // remove it if it already exists
@@ -153,24 +149,5 @@ class SqlBookRepository @Inject constructor(
         }
 
         return result
-    }
-
-    /**
-     * Creates the necessary tables for the [SqlBookRepository].
-     */
-    private fun createBookTables() {
-        jdbi.useHandle<RuntimeException> {
-            it.createUpdate("""
-            CREATE TABLE IF NOT EXISTS Books (
-              isbn VARCHAR(13) PRIMARY KEY,
-              title TEXT NOT NULL,
-              language VARCHAR(20),
-              page_count INTEGER,
-              publisher TEXT,
-              published DATE,
-              extra JSONB
-            );""".trimIndent()
-            ).execute()
-        }
     }
 }

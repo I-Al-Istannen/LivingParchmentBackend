@@ -1,7 +1,9 @@
 package me.ialistannen.livingparchment.backend.util
 
-import java.util.logging.Logger
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 
 fun <T : Any> T.logger(): Lazy<Logger> {
-    return lazy { Logger.getLogger(this.javaClass.name) }
+    return lazy { LoggerFactory.getLogger(this.javaClass.name) }
 }

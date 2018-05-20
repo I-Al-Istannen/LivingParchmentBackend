@@ -4,7 +4,6 @@ import me.ialistannen.livingparchment.backend.util.logger
 import me.ialistannen.livingparchment.common.model.Book
 import org.jsoup.nodes.Document
 import java.util.*
-import java.util.logging.Level
 
 abstract class BaseFetcher : BookFetcher {
 
@@ -17,7 +16,7 @@ abstract class BaseFetcher : BookFetcher {
 
             extractFromPage(processed)
         } catch (e: Exception) {
-            logger.log(Level.WARNING, "Error fetching a book", e)
+            logger.info("Error fetching a book", e)
             null
         }
     }

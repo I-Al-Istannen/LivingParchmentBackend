@@ -1,0 +1,17 @@
+dbConnectionString: "jdbc:postgresql://localhost:5432/LivingParchmentTest"
+dbUser: "LivingParchment"
+dbPassword: "123456"
+
+# Logging settings.
+logging:
+
+  # The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
+  level: INFO
+
+  appenders:
+    - type: console
+      target: STDOUT
+    - type: file
+      currentLogFilename: ./logs/living-log.log
+      archivedLogFilenamePattern: ./logs/living-log-%d.log.gz
+      archivedFileCount: 2

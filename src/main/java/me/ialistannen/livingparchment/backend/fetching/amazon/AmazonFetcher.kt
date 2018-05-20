@@ -93,7 +93,9 @@ class AmazonFetcher : BaseFetcher() {
     }
 
     override fun extractAuthors(document: Document): List<String> {
-        return document.getElementsByClass("author")
+        return document
+                .getElementById("bylineInfo")
+                .getElementsByClass("author")
                 .mapNotNull {
                     val authorName = extractAuthorName(it) ?: return@mapNotNull null
                     val contribution = it.getElementsByClass("contribution")
@@ -109,6 +111,7 @@ class AmazonFetcher : BaseFetcher() {
 
     private fun extractAuthorName(element: Element): String? {
         return element.getElementsByClass("contributorNameID")
+                .firstOrNull()
                 ?.text()
                 ?: element.getElementsByTag("a")
                         .firstOrNull()
