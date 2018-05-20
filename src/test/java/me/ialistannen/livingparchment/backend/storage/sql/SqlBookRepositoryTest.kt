@@ -68,6 +68,7 @@ internal class SqlBookRepositoryTest {
             }
             jdbi.useHandle<RuntimeException> {
                 it.createUpdate("DROP TABLE Books").execute()
+                DatabaseCreator().createTables(it)
             }
             bookRepository = SqlBookRepository(jdbi)
 
