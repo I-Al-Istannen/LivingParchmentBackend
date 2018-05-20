@@ -20,9 +20,19 @@ interface BookRepository {
      * Removes the given book from the repository.
      *
      * @param book the book to remove
+     * @return true if the book was removed, false if it didn't exist
      * @throws StorageException if an error occurs
      */
-    suspend fun removeBook(book: Book)
+    suspend fun removeBook(book: Book): Boolean
+
+    /**
+     * Removes the given book from the repository.
+     *
+     * @param isbn the isbn of the book to remove
+     * @return true if the book was removed, false if it didn't exist
+     * @throws StorageException if an error occurs
+     */
+    suspend fun removeBook(isbn: String): Boolean
 
     /**
      * Returns all books.

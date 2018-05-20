@@ -63,12 +63,16 @@ class SqlBookRepository @Inject constructor(
         )
     }
 
-    override suspend fun removeBook(book: Book) {
-        jdbi.using {
+    override suspend fun removeBook(book: Book): Boolean {
+        return removeBook(book.isbn)
+    }
+
+    override suspend fun removeBook(isbn: String): Boolean {
+        return jdbi.using {
             createUpdate("DELETE FROM Books WHERE isbn = :isbn")
-                    .bind("isbn", book.isbn)
+                    .bind("isbn", isbn)
                     .execute()
-        }
+        } != 0
     }
 
     override suspend fun getAllBooks(): List<Book> {

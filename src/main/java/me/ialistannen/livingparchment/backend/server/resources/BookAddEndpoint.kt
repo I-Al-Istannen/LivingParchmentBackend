@@ -28,7 +28,7 @@ class BookAddEndpoint @Inject constructor(
     @Timed
     fun getHello(@QueryParam("isbn") @NotEmpty isbn: String): BookAddResponse {
         return runBlocking {
-            return@runBlocking try {
+            try {
                 val book = bookFetcher.fetch(isbn) ?: return@runBlocking notFound(isbn)
 
                 bookRepository.addBook(book)
