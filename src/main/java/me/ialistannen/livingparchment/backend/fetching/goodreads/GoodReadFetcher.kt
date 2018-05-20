@@ -47,9 +47,15 @@ class GoodReadFetcher : BaseFetcher() {
         val publisher = matchResult.groupValues[2]
                 .replace("\\(.+".toRegex(), "")
                 .trim()
-        val publishedString = matchResult.groupValues[1]
+        var publishedString = matchResult.groupValues[1]
                 .replace("(\\d+)\\w*".toRegex(), "$1")
                 .trim()
+
+        // catch format "April 2010", i.e. one without a day and assume start of the month
+        if (publishedString.count { it == ' ' } < 2) {
+            val words = publishedString.split(" ")
+            publishedString = "${words[0]} 01 ${words[1]}"
+        }
 
         return try {
             publisher to DATE_FORMAT.parse(publishedString)
