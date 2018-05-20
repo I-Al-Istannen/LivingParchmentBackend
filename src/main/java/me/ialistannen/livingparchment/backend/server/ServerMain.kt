@@ -4,9 +4,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.dropwizard.Application
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
-import kotlinx.coroutines.experimental.runBlocking
 import me.ialistannen.livingparchment.backend.di.DaggerBackendMainComponent
-import me.ialistannen.livingparchment.backend.fetching.amazon.AmazonFetcher
 import me.ialistannen.livingparchment.backend.server.config.LivingParchmentConfiguration
 import me.ialistannen.livingparchment.backend.server.database.ManagedJdbi
 import me.ialistannen.livingparchment.backend.server.resources.BookAddEndpoint
@@ -55,13 +53,6 @@ class ServerMain : Application<LivingParchmentConfiguration>() {
 }
 
 fun main(args: Array<String>) {
-
-    runBlocking {
-        println(AmazonFetcher().fetch("3866801920"))
-    }
-
-    System.exit(0)
-
     ServerMain().run(
             "server",
             ServerMain::class.java.getResource("/living-parchment.yml")

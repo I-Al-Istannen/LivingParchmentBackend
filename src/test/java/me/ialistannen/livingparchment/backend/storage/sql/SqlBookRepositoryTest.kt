@@ -7,6 +7,7 @@ import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.kotlin.KotlinPlugin
 import org.jdbi.v3.sqlobject.SqlObjectPlugin
 import org.jdbi.v3.sqlobject.kotlin.KotlinSqlObjectPlugin
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -67,7 +68,7 @@ internal class SqlBookRepositoryTest {
                 registerArgument(JsonNNodeArgumentFactory())
             }
             jdbi.useHandle<RuntimeException> {
-                it.createUpdate("DROP TABLE Books").execute()
+                it.createUpdate("DROP TABLE IF EXISTS Books").execute()
                 DatabaseCreator().createTables(it)
             }
             bookRepository = SqlBookRepository(jdbi)
@@ -75,6 +76,14 @@ internal class SqlBookRepositoryTest {
             runBlocking {
                 bookRepository.addBook(bookOne)
                 bookRepository.addBook(bookTwo)
+            }
+        }
+
+        @AfterAll
+        @JvmStatic
+        fun teardown() {
+            jdbi.useHandle<RuntimeException> {
+                it.createUpdate("DROP TABLE IF EXISTS Books").execute()
             }
         }
     }

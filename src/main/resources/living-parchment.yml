@@ -1,4 +1,4 @@
-dbConnectionString: "jdbc:postgresql://localhost:5432/LivingParchmentTest"
+dbConnectionString: "jdbc:postgresql://localhost:5432/LivingParchmentDb"
 dbUser: "LivingParchment"
 dbPassword: "123456"
 
