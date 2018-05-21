@@ -7,6 +7,7 @@ import io.dropwizard.setup.Environment
 import me.ialistannen.livingparchment.backend.di.DaggerBackendMainComponent
 import me.ialistannen.livingparchment.backend.server.config.LivingParchmentConfiguration
 import me.ialistannen.livingparchment.backend.server.database.ManagedJdbi
+import me.ialistannen.livingparchment.backend.server.health.DatabaseHealthCheck
 import me.ialistannen.livingparchment.backend.server.resources.BookAddEndpoint
 import me.ialistannen.livingparchment.backend.server.resources.BookDeleteEndpoint
 import me.ialistannen.livingparchment.backend.server.resources.BookQueryEndpoint
@@ -35,6 +36,8 @@ class ServerMain : Application<LivingParchmentConfiguration>() {
                 user = configuration.dbUser
         )
         environment.lifecycle().manage(managedJdbi)
+        environment.healthChecks()
+                .register("database-health", DatabaseHealthCheck(managedJdbi.getJdbi()))
 
         DaggerBackendMainComponent.builder()
                 .jdbi(managedJdbi)
