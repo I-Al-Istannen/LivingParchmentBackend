@@ -9,6 +9,7 @@ import me.ialistannen.livingparchment.common.api.response.BookAddResponse
 import me.ialistannen.livingparchment.common.api.response.BookAddStatus
 import org.hibernate.validator.constraints.NotEmpty
 import javax.inject.Inject
+import javax.ws.rs.FormParam
 import javax.ws.rs.PUT
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
@@ -25,7 +26,7 @@ class BookAddEndpoint @Inject constructor(
 
     @PUT
     @Timed
-    fun getHello(@NotEmpty isbn: String): BookAddResponse {
+    fun getHello(@NotEmpty @FormParam("isbn") isbn: String): BookAddResponse {
         return runBlocking {
             try {
                 val book = bookFetcher.fetch(isbn) ?: return@runBlocking notFound(isbn)
