@@ -12,7 +12,6 @@ import javax.inject.Inject
 import javax.ws.rs.PUT
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
-import javax.ws.rs.QueryParam
 import javax.ws.rs.core.MediaType
 
 @Path("/add")
@@ -26,7 +25,7 @@ class BookAddEndpoint @Inject constructor(
 
     @PUT
     @Timed
-    fun getHello(@QueryParam("isbn") @NotEmpty isbn: String): BookAddResponse {
+    fun getHello(@NotEmpty isbn: String): BookAddResponse {
         return runBlocking {
             try {
                 val book = bookFetcher.fetch(isbn) ?: return@runBlocking notFound(isbn)
