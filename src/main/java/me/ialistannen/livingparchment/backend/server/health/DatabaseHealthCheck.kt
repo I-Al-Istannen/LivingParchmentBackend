@@ -10,12 +10,17 @@ class DatabaseHealthCheck @Inject constructor(
 
     override fun check(): HealthCheck.Result {
         return try {
+            var valid = false
             jdbi.useHandle<RuntimeException> {
-                it.connection
-                        .prepareStatement("SELECT 1")
-                        .execute()
+                if (it.connection.isValid(10)) {
+                    valid = true
+                }
             }
-            Result.healthy()
+            if (valid) {
+                Result.healthy()
+            } else {
+                Result.unhealthy("Connection is invalid")
+            }
         } catch (e: Exception) {
             Result.unhealthy(e)
         }
