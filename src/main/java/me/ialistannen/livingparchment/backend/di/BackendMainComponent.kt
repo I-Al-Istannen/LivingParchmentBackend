@@ -6,7 +6,12 @@ import me.ialistannen.livingparchment.backend.server.ServerMain
 import me.ialistannen.livingparchment.backend.server.database.ManagedJdbi
 
 @ApplicationScope
-@Component(modules = [BookRepositoryModule::class, JdbiModule::class, FetchingModule::class])
+@Component(modules = [
+    BookRepositoryModule::class,
+    BookLocationRepositoryModule::class,
+    JdbiModule::class,
+    FetchingModule::class
+])
 abstract class BackendMainComponent {
 
     @Component.Builder

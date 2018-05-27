@@ -1,7 +1,8 @@
-package me.ialistannen.livingparchment.backend.storage.sql
+package me.ialistannen.livingparchment.backend.storage.sql.book
 
 import me.ialistannen.livingparchment.backend.storage.BookRepository
 import me.ialistannen.livingparchment.backend.storage.StorageException
+import me.ialistannen.livingparchment.backend.storage.sql.using
 import me.ialistannen.livingparchment.backend.util.camelToSnakeCase
 import me.ialistannen.livingparchment.common.api.query.QueryType
 import me.ialistannen.livingparchment.common.model.Book
@@ -11,9 +12,9 @@ import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.statement.Query
 import org.jdbi.v3.core.statement.SqlStatement
 import org.jdbi.v3.core.statement.Update
+import java.sql.Types
 import javax.inject.Inject
 import kotlin.reflect.KProperty
-import kotlin.reflect.jvm.javaType
 
 class SqlBookRepository @Inject constructor(
         private val jdbi: Jdbi
@@ -22,8 +23,8 @@ class SqlBookRepository @Inject constructor(
     private val fieldAttributes = setOf(
             "title", "published", "publisher", "language", "page_count", "isbn"
     )
-    private val allowedJsonAttributes = setOf(
-            "authors", "genre"
+    private val allowedJsonQueryAttributes = setOf(
+            "authors", "genre", "location", "description"
     )
 
     override suspend fun addBook(book: Book) {
@@ -32,8 +33,8 @@ class SqlBookRepository @Inject constructor(
             removeBook(book)
 
             createUpdate("""
-                INSERT INTO Books (isbn, title, language, page_count, publisher, published, extra)
-                VALUES (:isbn, :title, :language, :page_count, :publisher, :published, :extra)
+                INSERT INTO Books (isbn, title, language, page_count, location, publisher, published, extra)
+                VALUES (:isbn, :title, :language, :page_count, :location::uuid, :publisher, :published, :extra)
                 """)
                     .bindProperty(book::isbn)
                     .bindProperty(book::title)
@@ -41,18 +42,22 @@ class SqlBookRepository @Inject constructor(
                     .bindProperty(book::pageCount)
                     .bindProperty(book::publisher)
                     .bindProperty(book::published)
+                    .bindProperty(book::location) { it?.uuid }
                     .bindJsonProperty(book::extra)
                     .execute()
         }
     }
 
     private fun <T> Update.bindProperty(property: KProperty<T>,
+                                        nullType: Int = Types.OTHER,
                                         transform: (T) -> Any? = { it }): Update {
         val transformed = transform.invoke(property.getter.call())
+                ?: return bindNull(property.name.camelToSnakeCase(), nullType)
+
         return bindByType(
                 property.name.camelToSnakeCase(),
                 transformed,
-                transformed?.javaClass ?: property.returnType.javaType
+                transformed.javaClass
         )
     }
 
@@ -78,7 +83,7 @@ class SqlBookRepository @Inject constructor(
     override suspend fun getAllBooks(): List<Book> {
         var result: List<Book> = emptyList()
         jdbi.using {
-            result = createQuery("SELECT * FROM Books")
+            result = createQuery(selectPrefix)
                     .map(BookRowMapper())
                     .list()
         }
@@ -103,7 +108,7 @@ class SqlBookRepository @Inject constructor(
             throw StorageException("Key is not allowed. Valid are: '$fieldAttributes'")
         }
 
-        val prefix = "SELECT * FROM Books"
+        val prefix = selectPrefix
 
         return performBookQuery(query) {
             when (type) {
@@ -119,11 +124,11 @@ class SqlBookRepository @Inject constructor(
     }
 
     private suspend fun getBooksForJsonQuery(type: QueryType, attribute: String, query: String): List<Book> {
-        if (attribute !in allowedJsonAttributes) {
-            throw StorageException("Key is not allowed. Valid are: '$allowedJsonAttributes'")
+        if (attribute !in allowedJsonQueryAttributes) {
+            throw StorageException("Key is not allowed. Valid are: '$allowedJsonQueryAttributes'")
         }
 
-        val prefix = "SELECT * FROM Books"
+        val prefix = selectPrefix
 
         return performBookQuery(query) {
             when (type) {
@@ -154,4 +159,20 @@ class SqlBookRepository @Inject constructor(
 
         return result
     }
+
+    private val selectPrefix = """
+        SELECT
+        B.isbn,
+        B.title,
+        B.language,
+        B.page_count,
+        B.publisher,
+        B.published,
+        B.extra,
+        L.id          as location_id,
+        L.name        as location_name,
+        L.description as location_description
+        FROM Books as B
+        LEFT JOIN BookLocations L on B.location = L.id
+        """.trimIndent().replace('\n', ' ')
 }

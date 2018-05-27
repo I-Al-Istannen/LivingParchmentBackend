@@ -1,25 +1,24 @@
 package me.ialistannen.livingparchment.backend.storage.sql
 
 import kotlinx.coroutines.experimental.runBlocking
+import me.ialistannen.livingparchment.backend.storage.sql.book.SqlBookRepository
+import me.ialistannen.livingparchment.backend.storage.sql.location.SqlBookLocationRepository
 import me.ialistannen.livingparchment.common.api.query.QueryType
 import me.ialistannen.livingparchment.common.model.Book
-import org.jdbi.v3.core.Jdbi
-import org.jdbi.v3.core.kotlin.KotlinPlugin
-import org.jdbi.v3.sqlobject.SqlObjectPlugin
-import org.jdbi.v3.sqlobject.kotlin.KotlinSqlObjectPlugin
+import me.ialistannen.livingparchment.common.model.BookLocation
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.util.*
 
-internal class SqlBookRepositoryTest {
+internal class SqlBookRepositoryTest : SqlTest() {
 
     companion object {
 
-        private lateinit var jdbi: Jdbi
         private lateinit var bookRepository: SqlBookRepository
 
         private val bookOne: Book = Book(
@@ -34,6 +33,7 @@ internal class SqlBookRepositoryTest {
                                 .toEpochMilli()
                 ),
                 publisher = "Acme corporation",
+                location = BookLocation("Test shelf 1", "N/A"),
                 genre = listOf("fantasy", "rpg"),
                 authors = listOf("Elise", "Coyote")
         )
@@ -57,21 +57,15 @@ internal class SqlBookRepositoryTest {
         @BeforeAll
         @JvmStatic
         fun setup() {
-            jdbi = Jdbi.create(
-                    "jdbc:postgresql://localhost:5432/LivingParchmentTest",
-                    "LivingParchment",
-                    "123456"
-            ).apply {
-                installPlugin(SqlObjectPlugin())
-                installPlugin(KotlinSqlObjectPlugin())
-                installPlugin(KotlinPlugin())
-                registerArgument(JsonNNodeArgumentFactory())
-            }
-            jdbi.useHandle<RuntimeException> {
-                it.createUpdate("DROP TABLE IF EXISTS Books").execute()
-                DatabaseCreator().createTables(it)
-            }
+            SqlTest.setup()
+
             bookRepository = SqlBookRepository(jdbi)
+            SqlBookLocationRepository(jdbi).apply {
+                runBlocking {
+                    bookOne.location?.let { addLocation(it) }
+                    bookTwo.location?.let { addLocation(it) }
+                }
+            }
 
             runBlocking {
                 bookRepository.addBook(bookOne)
@@ -82,9 +76,7 @@ internal class SqlBookRepositoryTest {
         @AfterAll
         @JvmStatic
         fun teardown() {
-            jdbi.useHandle<RuntimeException> {
-                it.createUpdate("DROP TABLE IF EXISTS Books").execute()
-            }
+            SqlTest.teardown()
         }
     }
 
@@ -261,6 +253,16 @@ internal class SqlBookRepositoryTest {
             bookRepository
                     .getBooksForQuery(QueryType.REGEX_MATCH, "publisher", ".+HEY.+")
                     .validateReturnedNoBook()
+        }
+    }
+
+    @Test
+    fun `has our two books`() {
+        runBlocking {
+            val allBooks = bookRepository.getAllBooks()
+
+            assertTrue(bookOne in allBooks, "Did not contain book one")
+            assertTrue(bookTwo in allBooks, "Did not contain book two")
         }
     }
 

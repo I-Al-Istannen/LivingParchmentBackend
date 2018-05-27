@@ -3,7 +3,7 @@ package me.ialistannen.livingparchment.backend.di
 import dagger.Binds
 import dagger.Module
 import me.ialistannen.livingparchment.backend.storage.BookRepository
-import me.ialistannen.livingparchment.backend.storage.sql.SqlBookRepository
+import me.ialistannen.livingparchment.backend.storage.sql.book.SqlBookRepository
 
 @Module
 abstract class BookRepositoryModule {
