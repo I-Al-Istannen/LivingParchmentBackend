@@ -3,10 +3,10 @@ package me.ialistannen.livingparchment.backend.server.resources
 import kotlinx.coroutines.experimental.runBlocking
 import me.ialistannen.livingparchment.backend.storage.BookLocationRepository
 import me.ialistannen.livingparchment.backend.util.logger
-import me.ialistannen.livingparchment.common.api.response.BookLocationAddResponse
-import me.ialistannen.livingparchment.common.api.response.BookLocationAddStatus
-import me.ialistannen.livingparchment.common.api.response.BookLocationQueryResponse
+import me.ialistannen.livingparchment.common.api.response.*
 import me.ialistannen.livingparchment.common.model.BookLocation
+import org.hibernate.validator.constraints.NotEmpty
+import java.util.*
 import javax.inject.Inject
 import javax.validation.constraints.NotNull
 import javax.ws.rs.*
@@ -45,6 +45,20 @@ class BookLocationEndpoint @Inject constructor(
                         bookLocation.name,
                         BookLocationAddStatus.INTERNAL_ERROR
                 )
+            }
+        }
+    }
+
+    @DELETE
+    fun deleteLocation(@NotEmpty @FormParam("id") id: String): BookLocationDeleteResponse {
+        return runBlocking {
+            try {
+                val uuid = UUID.fromString(id)
+                bookLocationRepository.deleteLocation(uuid)
+                BookLocationDeleteResponse(id, BookLocationDeleteStatus.DELETED)
+            } catch (e: Exception) {
+                logger.warn("Error deleting book location")
+                BookLocationDeleteResponse(id, BookLocationDeleteStatus.INTERNAL_ERROR)
             }
         }
     }
