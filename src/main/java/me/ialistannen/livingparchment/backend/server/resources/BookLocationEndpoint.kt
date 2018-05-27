@@ -33,7 +33,7 @@ class BookLocationEndpoint @Inject constructor(
         }
     }
 
-    @POST
+    @PUT
     fun addLocation(@NotNull bookLocation: BookLocation): BookLocationAddResponse {
         return runBlocking {
             try {
