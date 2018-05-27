@@ -24,7 +24,7 @@ class DatabaseCreator {
               page_count INTEGER,
               publisher  TEXT,
               published  DATE,
-              location   UUID NULL REFERENCES BookLocations(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+              location   UUID NULL REFERENCES BookLocations(id) ON UPDATE CASCADE ON DELETE SET NULL,
               extra      JSONB
             );""".trimIndent()
         ).execute()

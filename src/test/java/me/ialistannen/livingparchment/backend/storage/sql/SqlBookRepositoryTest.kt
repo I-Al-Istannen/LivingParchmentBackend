@@ -266,6 +266,27 @@ internal class SqlBookRepositoryTest : SqlTest() {
         }
     }
 
+    @Test
+    fun `deleting the book location leaves the book intact`() {
+        runBlocking {
+            val locationRepository = SqlBookLocationRepository(jdbi)
+            locationRepository.deleteLocation(
+                    bookOne.location!!.uuid
+            )
+            try {
+                val allBooks = bookRepository.getAllBooks()
+
+                val newBook = bookOne.copy(location = null)
+                assertTrue(newBook in allBooks, "Did not contain book one")
+            } finally {
+                // Cleaning up what the test above destroyed
+                locationRepository.addLocation(bookOne.location!!)
+                bookRepository.addBook(bookOne)
+            }
+        }
+    }
+
+
     private fun List<Book>.validateReturnedOnlyBook() {
         assertEquals(1, size)
         assertEquals(bookOne, firstOrNull())
