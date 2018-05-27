@@ -4,13 +4,12 @@ import kotlinx.coroutines.experimental.runBlocking
 import me.ialistannen.livingparchment.backend.fetching.BookFetcher
 import me.ialistannen.livingparchment.backend.storage.BookRepository
 import me.ialistannen.livingparchment.backend.util.logger
+import me.ialistannen.livingparchment.common.api.request.BookIsbnAddRequest
 import me.ialistannen.livingparchment.common.api.response.BookAddResponse
 import me.ialistannen.livingparchment.common.api.response.BookAddStatus
 import me.ialistannen.livingparchment.common.model.Book
-import org.hibernate.validator.constraints.NotEmpty
 import javax.inject.Inject
 import javax.validation.constraints.NotNull
-import javax.ws.rs.FormParam
 import javax.ws.rs.PUT
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
@@ -27,17 +26,20 @@ class BookAddEndpoint @Inject constructor(
 
     @Path("isbn")
     @PUT
-    fun addBookFromIsbn(@NotEmpty @FormParam("isbn") isbn: String): BookAddResponse {
+    fun addBookFromIsbn(@NotNull request: BookIsbnAddRequest): BookAddResponse {
         return runBlocking {
             try {
-                val book = bookFetcher.fetch(isbn) ?: return@runBlocking notFound(isbn)
+                val isbn = request.isbn
+                var book = bookFetcher.fetch(isbn) ?: return@runBlocking notFound(isbn)
+
+                request.location?.let { book = book.copy(location = request.location) }
 
                 bookRepository.addBook(book)
 
                 BookAddResponse(isbn, BookAddStatus.ADDED)
             } catch (e: Exception) {
                 logger.info("Error adding book", e)
-                BookAddResponse(isbn, BookAddStatus.INTERNAL_ERROR)
+                BookAddResponse(request.isbn, BookAddStatus.INTERNAL_ERROR)
             }
         }
     }
