@@ -10,6 +10,7 @@ import me.ialistannen.livingparchment.backend.server.database.ManagedJdbi
 import me.ialistannen.livingparchment.backend.server.health.DatabaseHealthCheck
 import me.ialistannen.livingparchment.backend.server.resources.BookAddEndpoint
 import me.ialistannen.livingparchment.backend.server.resources.BookDeleteEndpoint
+import me.ialistannen.livingparchment.backend.server.resources.BookLocationEndpoint
 import me.ialistannen.livingparchment.backend.server.resources.BookQueryEndpoint
 import me.ialistannen.livingparchment.backend.storage.sql.DatabaseCreator
 import org.eclipse.jetty.util.component.AbstractLifeCycle
@@ -24,6 +25,8 @@ class ServerMain : Application<LivingParchmentConfiguration>() {
     lateinit var bookQueryEndpoint: BookQueryEndpoint
     @Inject
     lateinit var bookDeleteEndpoint: BookDeleteEndpoint
+    @Inject
+    lateinit var bookLocationEndpoint: BookLocationEndpoint
 
     override fun getName(): String {
         return "living-parchment"
@@ -47,6 +50,7 @@ class ServerMain : Application<LivingParchmentConfiguration>() {
         environment.jersey().register(bookEndpoint)
         environment.jersey().register(bookQueryEndpoint)
         environment.jersey().register(bookDeleteEndpoint)
+        environment.jersey().register(bookLocationEndpoint)
 
         environment.lifecycle()
                 .addLifeCycleListener(object : AbstractLifeCycle.AbstractLifeCycleListener() {
