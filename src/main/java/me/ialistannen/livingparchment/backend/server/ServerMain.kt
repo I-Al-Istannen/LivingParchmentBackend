@@ -15,6 +15,7 @@ import me.ialistannen.livingparchment.backend.server.resources.BookQueryEndpoint
 import me.ialistannen.livingparchment.backend.storage.sql.DatabaseCreator
 import org.eclipse.jetty.util.component.AbstractLifeCycle
 import org.eclipse.jetty.util.component.LifeCycle
+import org.glassfish.jersey.server.filter.HttpMethodOverrideFilter
 import javax.inject.Inject
 
 class ServerMain : Application<LivingParchmentConfiguration>() {
@@ -51,6 +52,7 @@ class ServerMain : Application<LivingParchmentConfiguration>() {
         environment.jersey().register(bookQueryEndpoint)
         environment.jersey().register(bookDeleteEndpoint)
         environment.jersey().register(bookLocationEndpoint)
+        environment.jersey().register(HttpMethodOverrideFilter())
 
         environment.lifecycle()
                 .addLifeCycleListener(object : AbstractLifeCycle.AbstractLifeCycleListener() {
