@@ -1,6 +1,7 @@
 package me.ialistannen.livingparchment.backend.fetching.goodreads
 
 import me.ialistannen.livingparchment.backend.fetching.BaseFetcher
+import me.ialistannen.livingparchment.backend.util.logger
 import org.jsoup.nodes.Document
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -8,15 +9,17 @@ import java.util.*
 
 class GoodReadFetcher : BaseFetcher() {
 
+    private val logger by logger()
+
     override fun getQueryUrl(isbn: String): String {
         return "https://www.goodreads.com/search?q=$isbn"
     }
 
-    override suspend fun preprocessQueryPage(document: Document): Document? {
+    override suspend fun preprocessQueryPage(document: Document): Sequence<Document> {
         if (document.getElementsByClass("authorName").isEmpty()) {
-            return null
+            return emptySequence()
         }
-        return document
+        return sequenceOf(document)
     }
 
     override fun extractTitle(document: Document): String = document
@@ -25,10 +28,11 @@ class GoodReadFetcher : BaseFetcher() {
 
     override fun extractPageCount(document: Document): Int = document
             .getElementsByAttributeValue("itemprop", "numberOfPages")
-            .first()
-            .text()
-            .split(" ")[0]
-            .toInt()
+            .firstOrNull()
+            ?.text()
+            ?.split(" ")?.get(0)
+            ?.toInt()
+            ?: 0
 
     override fun extractIsbn(document: Document): String = document
             .getElementsByAttributeValue("itemprop", "isbn")
@@ -37,8 +41,9 @@ class GoodReadFetcher : BaseFetcher() {
 
     override fun extractLanguage(document: Document): String = document
             .getElementsByAttributeValue("itemprop", "inLanguage")
-            .first()
-            .text()
+            ?.first()
+            ?.text()
+            ?: "N/A"
 
     override fun extractPublished(document: Document): Pair<String, Date> {
         val fullText = document.getElementById("details").text()
@@ -47,20 +52,35 @@ class GoodReadFetcher : BaseFetcher() {
         val publisher = matchResult.groupValues[2]
                 .replace("\\(.+".toRegex(), "")
                 .trim()
-        var publishedString = matchResult.groupValues[1]
+        val publishedString = matchResult.groupValues[1]
                 .replace("(\\d+)\\w*".toRegex(), "$1")
                 .trim()
 
-        // catch format "April 2010", i.e. one without a day and assume start of the month
-        if (publishedString.count { it == ' ' } < 2) {
-            val words = publishedString.split(" ")
-            publishedString = "${words[0]} 01 ${words[1]}"
-        }
-
         return try {
-            publisher to DATE_FORMAT.parse(publishedString)
+            publisher to parseDate(publishedString)
         } catch (e: ParseException) {
             publisher to Date(0)
+        }
+    }
+
+
+    internal fun parseDate(input: String, default: Date = Date(0)): Date {
+        return try {
+            DATE_FORMAT.parse(normalizePartialEnglishDateString(input))
+        } catch (e: Exception) {
+            logger.warn("Can't parse date: '$input', message was: '${e.localizedMessage}'")
+            default
+        }
+    }
+
+    internal fun normalizePartialEnglishDateString(input: String): String {
+        val parts = input.split(" ").filter { it.isNotBlank() }
+
+        return when {
+            parts.size == 3 -> input
+            parts.size == 2 -> "${parts[0]} 01 ${parts[1]}"
+            parts.size == 1 -> "January 01 ${parts.first()}"
+            else -> ""
         }
     }
 

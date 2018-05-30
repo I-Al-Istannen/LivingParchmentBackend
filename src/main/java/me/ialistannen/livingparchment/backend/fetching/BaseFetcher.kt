@@ -12,11 +12,20 @@ abstract class BaseFetcher : BookFetcher {
     override suspend fun fetch(isbn: String): Book? {
         return try {
             val document = WebpageUtil.getPage(getQueryUrl(isbn)).await()
-            val processed = preprocessQueryPage(document) ?: return null
+            val toProcess = preprocessQueryPage(document)
 
-            extractFromPage(processed)
+            toProcess
+                    .mapNotNull {
+                        try {
+                            extractFromPage(it)
+                        } catch (e: Exception) {
+                            logger.info("Error fetching book ($isbn) '${e.localizedMessage}'")
+                            null
+                        }
+                    }
+                    .firstOrNull()
         } catch (e: Exception) {
-            logger.info("Error fetching a book", e)
+            logger.info("Error fetching a book: '$isbn'", e)
             null
         }
     }
@@ -30,20 +39,23 @@ abstract class BaseFetcher : BookFetcher {
      * detail pages, if the query didn't redirect you to the result page.
      *
      * @param document the query page
-     * @return the document to pass to [extractFromPage] or null to indicate that no book was found
+     * @return the document to pass to [extractFromPage]. If multiple could fit, return them all
+     * and they will be used one after another until one succeeds
      */
-    protected open suspend fun preprocessQueryPage(document: Document): Document? {
-        return document
+    protected open suspend fun preprocessQueryPage(document: Document): Sequence<Document> {
+        return sequenceOf(document)
     }
 
     protected open fun extractFromPage(document: Document): Book? {
         val title = extractTitle(document)
-        val pageCount = extractPageCount(document)
+        val pageCount = catchErrors(document, 0, this::extractPageCount)
         val isbn = extractIsbn(document)
-        val language = extractLanguage(document)
-        val publishInformation = extractPublished(document)
-        val authors = extractAuthors(document)
-        val genre = extractGenre(document)
+        val language = catchErrors(document, "N/A", this::extractLanguage)
+        val publishInformation = catchErrors(
+                document, "N/A" to Date(0), this::extractPublished
+        )
+        val authors = catchErrors(document, emptyList(), this::extractAuthors)
+        val genre = catchErrors(document, emptyList(), this::extractGenre)
 
         return Book(
                 title,
@@ -56,6 +68,15 @@ abstract class BaseFetcher : BookFetcher {
                 genre = genre,
                 extra = addExtra(document)
         )
+    }
+
+    private fun <T> catchErrors(document: Document, default: T, action: (Document) -> T): T {
+        return try {
+            action.invoke(document)
+        } catch (e: Exception) {
+            logger.info("Error executing fetch", e)
+            default
+        }
     }
 
     /**

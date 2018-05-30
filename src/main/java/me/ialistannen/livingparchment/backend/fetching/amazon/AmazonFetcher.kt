@@ -1,8 +1,10 @@
 package me.ialistannen.livingparchment.backend.fetching.amazon
 
+import kotlinx.coroutines.experimental.runBlocking
 import me.ialistannen.livingparchment.backend.fetching.BaseFetcher
 import me.ialistannen.livingparchment.backend.fetching.FetchException
 import me.ialistannen.livingparchment.backend.fetching.WebpageUtil
+import me.ialistannen.livingparchment.backend.util.logger
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import java.text.SimpleDateFormat
@@ -10,18 +12,18 @@ import java.util.*
 
 class AmazonFetcher : BaseFetcher() {
 
+    private val logger by logger()
+
     override fun getQueryUrl(isbn: String): String {
-        return "https://www.amazon.de/s/&field-keywords=$isbn"
+        return "https://www.amazon.de/s/?url=search-alias%3Dstripbooks&field-keywords=$isbn"
     }
 
-    override suspend fun preprocessQueryPage(document: Document): Document? {
-        val newUrl = document.getElementsByClass("s-item-container")
-                .firstOrNull()
-                ?.getElementsByClass("a-link-normal")
-                ?.firstOrNull()
-                ?.absUrl("href")
-                ?: return null
-        return WebpageUtil.getPage(newUrl).await()
+    override suspend fun preprocessQueryPage(document: Document): Sequence<Document> {
+        return document.getElementsByClass("s-item-container")
+                .mapNotNull { it.getElementsByClass("a-link-normal").firstOrNull() }
+                .map { it.absUrl("href") }
+                .asSequence()
+                .map { runBlocking { WebpageUtil.getPage(it).await() } }
     }
 
     override fun extractTitle(document: Document): String = document
@@ -86,10 +88,30 @@ class AmazonFetcher : BaseFetcher() {
         val date = if (dateString.isNullOrBlank()) {
             Date(0)
         } else {
-            dateFormat.parse(dateString)
+            parseDate(dateString!!, Date(0))
         }
 
         return publisher to date
+    }
+
+    internal fun parseDate(input: String, default: Date = Date(0)): Date {
+        return try {
+            dateFormat.parse(normalizePartialGermanDateString(input))
+        } catch (e: Exception) {
+            logger.warn("Can't parse date: '$input', message was: '${e.localizedMessage}'")
+            default
+        }
+    }
+
+    internal fun normalizePartialGermanDateString(input: String): String {
+        val parts = input.split(" ").filter { it.isNotBlank() }
+
+        return when {
+            parts.size == 3 -> input
+            parts.size == 2 -> "1. ${parts[0]} ${parts[1]}"
+            parts.size == 1 -> "1. Januar ${parts.first()}"
+            else -> ""
+        }
     }
 
     override fun extractAuthors(document: Document): List<String> {
