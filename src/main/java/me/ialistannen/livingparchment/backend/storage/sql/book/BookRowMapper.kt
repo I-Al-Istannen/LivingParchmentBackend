@@ -20,6 +20,7 @@ internal class BookRowMapper : RowMapper<Book> {
         val language = rs.getString("language")
         val publishedMillis = rs.getDate("published", UTC)
         val publisher = rs.getString("publisher")
+        val imageUrl = rs.getString("image_url")
         val extra = rs.getString("extra").fromJson<Map<String, Any>>()
         val locationId = rs.getObject("location_id") as UUID?
         val locationName = rs.getString("location_name")
@@ -37,6 +38,7 @@ internal class BookRowMapper : RowMapper<Book> {
                 pageCount = pageCount,
                 language = language,
                 location = location,
+                imageUrl = imageUrl,
                 published = Date(publishedMillis.time),
                 publisher = publisher,
                 extra = extra

@@ -34,6 +34,7 @@ internal class SqlBookRepositoryTest : SqlTest() {
                 ),
                 publisher = "Acme corporation",
                 location = BookLocation("Test shelf 1", "N/A"),
+                imageUrl = "https://duckduckgo.com",
                 genre = listOf("fantasy", "rpg"),
                 authors = listOf("Elise", "Coyote")
         )

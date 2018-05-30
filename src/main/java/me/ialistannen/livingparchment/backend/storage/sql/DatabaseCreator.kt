@@ -25,6 +25,7 @@ class DatabaseCreator {
               publisher  TEXT,
               published  DATE,
               location   UUID NULL REFERENCES BookLocations(id) ON UPDATE CASCADE ON DELETE SET NULL,
+              image_url  TEXT NULL,
               extra      JSONB
             );""".trimIndent()
         ).execute()

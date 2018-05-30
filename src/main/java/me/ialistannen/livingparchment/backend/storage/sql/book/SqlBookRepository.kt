@@ -33,8 +33,10 @@ class SqlBookRepository @Inject constructor(
             removeBook(book)
 
             createUpdate("""
-                INSERT INTO Books (isbn, title, language, page_count, location, publisher, published, extra)
-                VALUES (:isbn, :title, :language, :page_count, :location::uuid, :publisher, :published, :extra)
+                INSERT INTO Books
+                  (isbn, title, language, page_count, location, image_url, publisher, published, extra)
+                VALUES
+                   (:isbn, :title, :language, :page_count, :location::uuid, :image_url, :publisher, :published, :extra)
                 """)
                     .bindProperty(book::isbn)
                     .bindProperty(book::title)
@@ -43,6 +45,7 @@ class SqlBookRepository @Inject constructor(
                     .bindProperty(book::publisher)
                     .bindProperty(book::published)
                     .bindProperty(book::location) { it?.uuid }
+                    .bindProperty(book::imageUrl)
                     .bindJsonProperty(book::extra)
                     .execute()
         }
@@ -168,6 +171,7 @@ class SqlBookRepository @Inject constructor(
         B.page_count,
         B.publisher,
         B.published,
+        B.image_url,
         B.extra,
         L.id          as location_id,
         L.name        as location_name,
