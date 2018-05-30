@@ -13,4 +13,14 @@ class LivingParchmentConfiguration : Configuration() {
 
     @NotEmpty
     lateinit var dbPassword: String
+
+    @NotEmpty
+    lateinit var jwtTokenSecret: String
+
+    /**
+     * Returns the jwt client secret used to authenticate users.
+     */
+    fun getJwtTokenSecret(): ByteArray {
+        return jwtTokenSecret.toByteArray()
+    }
 }

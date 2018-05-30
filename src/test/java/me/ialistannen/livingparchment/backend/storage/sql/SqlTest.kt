@@ -25,6 +25,7 @@ abstract class SqlTest {
             jdbi.useHandle<RuntimeException> {
                 it.createUpdate("DROP TABLE IF EXISTS Books").execute()
                 it.createUpdate("DROP TABLE IF EXISTS BookLocations").execute()
+                it.createUpdate("DROP TABLE IF EXISTS Users").execute()
                 DatabaseCreator().createTables(it)
             }
         }
@@ -34,6 +35,7 @@ abstract class SqlTest {
             jdbi.useHandle<RuntimeException> {
                 it.createUpdate("DROP TABLE IF EXISTS Books").execute()
                 it.createUpdate("DROP TABLE IF EXISTS BookLocations").execute()
+                it.createUpdate("DROP TABLE IF EXISTS Users").execute()
             }
         }
     }

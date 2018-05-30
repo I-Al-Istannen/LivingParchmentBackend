@@ -28,5 +28,12 @@ class DatabaseCreator {
               extra      JSONB
             );""".trimIndent()
         ).execute()
+
+        handle.createUpdate("""
+            CREATE TABLE IF NOT EXISTS Users (
+              name          VARCHAR(40) PRIMARY KEY,
+              password_hash CHAR(60)
+            );""".trimIndent()
+        ).execute()
     }
 }

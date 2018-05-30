@@ -223,6 +223,19 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.github.toastshaman</groupId>
+      <artifactId>dropwizard-auth-jwt</artifactId>
+      <version>1.1.2-0</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.mindrot/jbcrypt -->
+    <dependency>
+      <groupId>org.mindrot</groupId>
+      <artifactId>jbcrypt</artifactId>
+      <version>0.4</version>
+    </dependency>
+
   </dependencies>
 
   <!--KEEP VERSIONS OF JDBI TIDY-->
