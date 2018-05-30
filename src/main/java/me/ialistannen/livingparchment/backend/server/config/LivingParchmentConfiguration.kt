@@ -1,9 +1,13 @@
 package me.ialistannen.livingparchment.backend.server.config
 
 import io.dropwizard.Configuration
+import io.dropwizard.bundles.assets.AssetsBundleConfiguration
+import io.dropwizard.bundles.assets.AssetsConfiguration
 import org.hibernate.validator.constraints.NotEmpty
+import javax.validation.Valid
+import javax.validation.constraints.NotNull
 
-class LivingParchmentConfiguration : Configuration() {
+class LivingParchmentConfiguration : Configuration(), AssetsBundleConfiguration {
 
     @NotEmpty
     lateinit var dbUser: String
@@ -22,6 +26,14 @@ class LivingParchmentConfiguration : Configuration() {
 
     @NotEmpty
     lateinit var adminPassword: String
+
+    @Valid
+    @NotNull
+    lateinit var assets: AssetsConfiguration
+
+    override fun getAssetsConfiguration(): AssetsConfiguration {
+        return assets
+    }
 
     /**
      * Returns the jwt client secret used to authenticate users.

@@ -5,6 +5,7 @@ import com.github.toastshaman.dropwizard.auth.jwt.JwtAuthFilter
 import io.dropwizard.Application
 import io.dropwizard.auth.AuthDynamicFeature
 import io.dropwizard.auth.AuthValueFactoryProvider
+import io.dropwizard.bundles.assets.ConfiguredAssetsBundle
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
 import me.ialistannen.livingparchment.backend.di.DaggerBackendMainComponent
@@ -126,6 +127,8 @@ class ServerMain : Application<LivingParchmentConfiguration>() {
 
     override fun initialize(bootstrap: Bootstrap<LivingParchmentConfiguration>) {
         bootstrap.objectMapper.registerModule(KotlinModule())
+
+        bootstrap.addBundle(ConfiguredAssetsBundle())
     }
 }
 

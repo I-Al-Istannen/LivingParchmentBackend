@@ -6,6 +6,12 @@ jwtTokenSecret: "wCriPwIKPltNLqARS1D1eun1hpleOKHi_0iyScnBNHP8J7KOStpYe-YSiAFShfU
 adminUserName: "AL"
 adminPassword: "123"
 
+assets:
+  mappings:
+    /assets: /covers
+  overrides:
+    /covers: /home/i_al_istannen/general_storage/books/covers
+
 # Logging settings.
 logging:
 
