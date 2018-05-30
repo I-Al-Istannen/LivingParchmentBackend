@@ -6,6 +6,7 @@ import me.ialistannen.livingparchment.backend.util.logger
 import me.ialistannen.livingparchment.common.api.query.QueryType
 import me.ialistannen.livingparchment.common.api.response.BookResponse
 import org.hibernate.validator.constraints.NotEmpty
+import javax.annotation.security.PermitAll
 import javax.inject.Inject
 import javax.validation.constraints.NotNull
 import javax.ws.rs.*
@@ -20,6 +21,7 @@ class BookQueryEndpoint @Inject constructor(
 
     private val logger by logger()
 
+    @PermitAll
     @GET
     fun getBooks(@QueryParam("attributeName") @NotEmpty attributeName: String,
                  @QueryParam("queryType") @NotNull queryType: QueryType,

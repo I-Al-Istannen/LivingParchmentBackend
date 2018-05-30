@@ -7,6 +7,7 @@ import me.ialistannen.livingparchment.common.api.response.*
 import me.ialistannen.livingparchment.common.model.BookLocation
 import org.hibernate.validator.constraints.NotEmpty
 import java.util.*
+import javax.annotation.security.PermitAll
 import javax.inject.Inject
 import javax.validation.constraints.NotNull
 import javax.ws.rs.*
@@ -21,6 +22,7 @@ class BookLocationEndpoint @Inject constructor(
 
     private val logger by logger()
 
+    @PermitAll
     @GET
     fun getAllLocations(): BookLocationQueryResponse {
         return runBlocking {
@@ -33,6 +35,7 @@ class BookLocationEndpoint @Inject constructor(
         }
     }
 
+    @PermitAll
     @PUT
     fun addLocation(@NotNull bookLocation: BookLocation): BookLocationAddResponse {
         return runBlocking {
@@ -49,6 +52,7 @@ class BookLocationEndpoint @Inject constructor(
         }
     }
 
+    @PermitAll
     @DELETE
     fun deleteLocation(@NotEmpty @FormParam("id") id: String): BookLocationDeleteResponse {
         return runBlocking {

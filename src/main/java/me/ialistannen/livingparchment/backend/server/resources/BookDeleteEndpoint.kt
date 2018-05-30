@@ -6,6 +6,7 @@ import me.ialistannen.livingparchment.backend.util.logger
 import me.ialistannen.livingparchment.common.api.response.BookDeleteResponse
 import me.ialistannen.livingparchment.common.api.response.BookDeleteStatus
 import org.hibernate.validator.constraints.NotEmpty
+import javax.annotation.security.PermitAll
 import javax.inject.Inject
 import javax.ws.rs.DELETE
 import javax.ws.rs.Path
@@ -21,6 +22,7 @@ class BookDeleteEndpoint @Inject constructor(
 
     private val logger by logger()
 
+    @PermitAll
     @DELETE
     fun deleteBook(@QueryParam("isbn") @NotEmpty isbn: String): BookDeleteResponse {
         return runBlocking {

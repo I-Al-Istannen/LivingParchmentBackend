@@ -15,6 +15,7 @@ import me.ialistannen.livingparchment.common.api.response.BookPatchStatus
 import me.ialistannen.livingparchment.common.model.Book
 import me.ialistannen.livingparchment.common.serialization.fromJson
 import org.hibernate.validator.constraints.NotEmpty
+import javax.annotation.security.PermitAll
 import javax.inject.Inject
 import javax.validation.constraints.NotNull
 import javax.ws.rs.PUT
@@ -33,6 +34,7 @@ class BookAddEndpoint @Inject constructor(
 
     private val logger by logger()
 
+    @PermitAll
     @Path("isbn")
     @PUT
     fun addBookFromIsbn(@NotNull request: BookIsbnAddRequest): BookAddResponse {
@@ -53,6 +55,7 @@ class BookAddEndpoint @Inject constructor(
         }
     }
 
+    @PermitAll
     @Path("book")
     @PUT
     fun addBook(@NotNull book: Book): BookAddResponse {
@@ -68,6 +71,7 @@ class BookAddEndpoint @Inject constructor(
         }
     }
 
+    @PermitAll
     @Path("patch")
     @PATCH
     fun patchBook(@NotEmpty @QueryParam("isbn") isbn: String, body: String): BookPatchResponse {
