@@ -45,6 +45,11 @@ class GoodReadFetcher : BaseFetcher() {
             ?.text()
             ?: "N/A"
 
+    override fun extractBookImageUrl(document: Document): String? {
+        return document.getElementById("coverImage")
+                ?.absUrl("src")
+    }
+
     override fun extractPublished(document: Document): Pair<String, Date> {
         val fullText = document.getElementById("details").text()
         val matchResult = EXTRACTION_REGEX.find(fullText) ?: return "" to Date(0)

@@ -19,18 +19,18 @@ internal abstract class FetcherTest {
     @Test
     fun `finds basic information about known book with isbn 13`() {
         runBlocking {
-            fetcher.fetch("9783551556967").isQuidditchBook()
+            fetcher.fetch("9783551556967").isCorrectBook()
         }
     }
 
     @Test
     fun `finds basic information about known book with isbn 10`() {
         runBlocking {
-            fetcher.fetch("3551556962").isQuidditchBook()
+            fetcher.fetch("3551556962").isCorrectBook()
         }
     }
 
-    private fun Book?.isQuidditchBook() {
+    private fun Book?.isCorrectBook() {
         Assertions.assertNotNull(this)
 
         // Smart cast later on
@@ -49,5 +49,6 @@ internal abstract class FetcherTest {
                 "carlsen" in publisher.toLowerCase(),
                 "Publisher is not carlsen (got $publisher)"
         )
+        println(imageUrl)
     }
 }

@@ -1,10 +1,12 @@
 package me.ialistannen.livingparchment.backend.fetching.amazon
 
+import com.google.gson.JsonObject
 import kotlinx.coroutines.experimental.runBlocking
 import me.ialistannen.livingparchment.backend.fetching.BaseFetcher
 import me.ialistannen.livingparchment.backend.fetching.FetchException
 import me.ialistannen.livingparchment.backend.fetching.WebpageUtil
 import me.ialistannen.livingparchment.backend.util.logger
+import me.ialistannen.livingparchment.common.serialization.fromJson
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import java.text.SimpleDateFormat
@@ -60,6 +62,14 @@ class AmazonFetcher : BaseFetcher() {
                             ?.mapData { it }
                             ?: "N/A"
                 })
+    }
+
+    override fun extractBookImageUrl(document: Document): String? {
+        return document.getElementById("imgBlkFront")
+                ?.attr("data-a-dynamic-image")
+                ?.fromJson<JsonObject>()
+                ?.keySet()
+                ?.firstOrNull()
     }
 
     override fun extractPublished(document: Document): Pair<String, Date> {

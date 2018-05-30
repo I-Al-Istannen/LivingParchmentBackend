@@ -56,6 +56,7 @@ abstract class BaseFetcher : BookFetcher {
         )
         val authors = catchErrors(document, emptyList(), this::extractAuthors)
         val genre = catchErrors(document, emptyList(), this::extractGenre)
+        val imageUrl: String? = catchErrors(document, null, this::extractBookImageUrl)
 
         return Book(
                 title,
@@ -64,6 +65,7 @@ abstract class BaseFetcher : BookFetcher {
                 language,
                 publisher = publishInformation.first,
                 published = publishInformation.second,
+                imageUrl = imageUrl,
                 authors = authors,
                 genre = genre,
                 extra = addExtra(document)
@@ -105,14 +107,19 @@ abstract class BaseFetcher : BookFetcher {
     protected abstract fun extractPublished(document: Document): Pair<String, Date>
 
     /**
-     * Extracts the authors
+     * Extracts the authors.
      */
     protected abstract fun extractAuthors(document: Document): List<String>
 
     /**
-     * Extracts the genre
+     * Extracts the genre.
      */
     protected abstract fun extractGenre(document: Document): List<String>
+
+    /**
+     * Extracts the image url for the book.
+     */
+    protected abstract fun extractBookImageUrl(document: Document): String?
 
     /**
      * Adds additional information.
