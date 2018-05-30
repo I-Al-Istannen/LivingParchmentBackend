@@ -4,6 +4,7 @@ import me.ialistannen.livingparchment.backend.server.auth.User
 import me.ialistannen.livingparchment.backend.storage.UserRepository
 import me.ialistannen.livingparchment.backend.storage.sql.using
 import org.jdbi.v3.core.Jdbi
+import java.sql.Types
 import javax.inject.Inject
 
 class SqlUserRepository @Inject constructor(
@@ -31,10 +32,17 @@ class SqlUserRepository @Inject constructor(
         jdbi.using {
             deleteUser(user.name)
 
-            createUpdate("INSERT INTO Users (name, password_hash)" +
-                    " VALUES (:name, :passwordHash)")
+            createUpdate("INSERT INTO Users (name, password_hash, role)" +
+                    " VALUES (:name, :passwordHash, :role)")
                     .bind("name", user.name)
                     .bind("passwordHash", user.passwordHash)
+                    .apply {
+                        if (user.role == null) {
+                            bindNull("role", Types.VARCHAR)
+                        } else {
+                            bind("role", user.role)
+                        }
+                    }
                     .execute()
         }
     }

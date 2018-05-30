@@ -16,9 +16,11 @@ internal class SqlUserRepositoryTest : SqlTest() {
 
         private lateinit var userRepository: UserRepository
 
-        private val userOne = User("John Doe", BCrypt.hashpw(
-                "hunter2", BCrypt.gensalt()
-        ))
+        private val userOne = User(
+                "John Doe",
+                BCrypt.hashpw("hunter2", BCrypt.gensalt()),
+                "ADMIN"
+        )
         private val userTwo = User("Jane Doe", BCrypt.hashpw(
                 "hunter3", BCrypt.gensalt()
         ))

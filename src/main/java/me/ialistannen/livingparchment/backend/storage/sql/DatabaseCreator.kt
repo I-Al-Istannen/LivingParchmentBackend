@@ -32,7 +32,8 @@ class DatabaseCreator {
         handle.createUpdate("""
             CREATE TABLE IF NOT EXISTS Users (
               name          VARCHAR(40) PRIMARY KEY,
-              password_hash CHAR(60)
+              password_hash CHAR(60),
+              role          VARCHAR(20) NULL
             );""".trimIndent()
         ).execute()
     }

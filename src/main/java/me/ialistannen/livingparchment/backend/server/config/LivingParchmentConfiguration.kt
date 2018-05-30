@@ -17,6 +17,12 @@ class LivingParchmentConfiguration : Configuration() {
     @NotEmpty
     lateinit var jwtTokenSecret: String
 
+    @NotEmpty
+    lateinit var adminUserName: String
+
+    @NotEmpty
+    lateinit var adminPassword: String
+
     /**
      * Returns the jwt client secret used to authenticate users.
      */

@@ -3,6 +3,9 @@ dbUser: "LivingParchment"
 dbPassword: "123456"
 jwtTokenSecret: "wCriPwIKPltNLqARS1D1eun1hpleOKHi_0iyScnBNHP8J7KOStpYe-YSiAFShfUcHITI6lB7hB7rTcEb0GEiY6qm-An1n1TsQS3TP_sAgS1qStfOYTF4UeZGTz2PdrBTlCGfX71EcISerMugY5VY0uI3TPt2y_nMG0v8YRUVJbw6rw9yiPnoaqJ6Sz78pXehzZMBTqhGou7_4LG8Fkyae2uP4Fdr75tbOs3plAOqlfWa1iWY3mMoB2LX9Kny7EgY"
 
+adminUserName: "AL"
+adminPassword: "123"
+
 # Logging settings.
 logging:
 

@@ -10,7 +10,8 @@ internal class UserRowMapper : RowMapper<User> {
     override fun map(rs: ResultSet, ctx: StatementContext?): User {
         val name: String = rs.getString("name")
         val passwordHash: String = rs.getString("password_hash")
+        val role: String? = rs.getString("role")
 
-        return User(name, passwordHash)
+        return User(name, passwordHash, role)
     }
 }
