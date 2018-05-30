@@ -38,7 +38,7 @@ class UserLoginEndpoint @Inject constructor(
 
             val jwtClaims = JwtClaims().apply {
                 subject = name
-                setExpirationTimeMinutesInTheFuture(Integer.MAX_VALUE.toFloat())
+                setExpirationTimeMinutesInTheFuture(60f)
             }
 
             val signature = JsonWebSignature().apply {
