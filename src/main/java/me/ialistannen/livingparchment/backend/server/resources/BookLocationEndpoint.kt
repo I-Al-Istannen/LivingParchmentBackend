@@ -1,5 +1,6 @@
 package me.ialistannen.livingparchment.backend.server.resources
 
+import io.dropwizard.jersey.PATCH
 import kotlinx.coroutines.experimental.runBlocking
 import me.ialistannen.livingparchment.backend.storage.BookLocationRepository
 import me.ialistannen.livingparchment.backend.util.logger
@@ -48,6 +49,31 @@ class BookLocationEndpoint @Inject constructor(
                         bookLocation.name,
                         BookLocationAddStatus.INTERNAL_ERROR
                 )
+            }
+        }
+    }
+
+    @PermitAll
+    @PATCH
+    fun patchLocation(@NotEmpty @FormParam("id") id: String,
+                      @NotEmpty @FormParam("name") name: String,
+                      @NotEmpty @FormParam("description") description: String): BookLocationPatchResponse {
+        return runBlocking {
+            try {
+                val uuid = UUID.fromString(id)
+                val bookLocation = bookLocationRepository.getLocation(uuid)
+                        ?: return@runBlocking BookLocationPatchResponse(
+                                null, BookLocationPatchStatus.NOT_FOUND
+                        )
+
+                val newLocation = bookLocation.copy(name = name, description = description)
+
+                bookLocationRepository.addLocation(newLocation)
+
+                BookLocationPatchResponse(newLocation, BookLocationPatchStatus.PATCHED)
+            } catch (e: Exception) {
+                logger.warn("Error patching a book", e)
+                BookLocationPatchResponse(null, BookLocationPatchStatus.INTERNAL_ERROR)
             }
         }
     }
