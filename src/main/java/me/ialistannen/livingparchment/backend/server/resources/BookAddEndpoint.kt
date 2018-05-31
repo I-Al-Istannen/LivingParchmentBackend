@@ -3,6 +3,7 @@ package me.ialistannen.livingparchment.backend.server.resources
 import io.dropwizard.jersey.PATCH
 import kotlinx.coroutines.experimental.runBlocking
 import me.ialistannen.livingparchment.backend.fetching.BookFetcher
+import me.ialistannen.livingparchment.backend.server.config.LivingParchmentConfiguration
 import me.ialistannen.livingparchment.backend.storage.BookLocationRepository
 import me.ialistannen.livingparchment.backend.storage.BookRepository
 import me.ialistannen.livingparchment.backend.util.logger
@@ -15,6 +16,10 @@ import me.ialistannen.livingparchment.common.api.response.BookPatchStatus
 import me.ialistannen.livingparchment.common.model.Book
 import me.ialistannen.livingparchment.common.serialization.fromJson
 import org.hibernate.validator.constraints.NotEmpty
+import java.net.URL
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
 import javax.annotation.security.PermitAll
 import javax.inject.Inject
 import javax.validation.constraints.NotNull
@@ -29,7 +34,8 @@ import javax.ws.rs.core.MediaType
 class BookAddEndpoint @Inject constructor(
         private val bookRepository: BookRepository,
         private val bookFetcher: BookFetcher,
-        private val locationRepository: BookLocationRepository
+        private val locationRepository: BookLocationRepository,
+        private val configuration: LivingParchmentConfiguration
 ) {
 
     private val logger by logger()
@@ -47,6 +53,8 @@ class BookAddEndpoint @Inject constructor(
 
                 bookRepository.addBook(book)
 
+                saveImage(book)
+
                 BookAddResponse(isbn, BookAddStatus.ADDED)
             } catch (e: Exception) {
                 logger.info("Error adding book", e)
@@ -62,6 +70,8 @@ class BookAddEndpoint @Inject constructor(
         return runBlocking {
             try {
                 bookRepository.addBook(book)
+
+                saveImage(book)
 
                 BookAddResponse(book.isbn, BookAddStatus.ADDED)
             } catch (e: Exception) {
@@ -85,10 +95,37 @@ class BookAddEndpoint @Inject constructor(
 
                 bookRepository.addBook(patched)
 
+                saveImage(book)
+
                 BookPatchResponse(isbn, BookPatchStatus.PATCHED, patched)
             } catch (e: Exception) {
                 logger.info("Error patching book", e)
                 BookPatchResponse(isbn, BookPatchStatus.INTERNAL_ERROR, null)
+            }
+        }
+    }
+
+    private fun saveImage(book: Book) {
+        if (book.imageUrl.isNullOrBlank()) {
+            return
+        }
+        val rootPath = Paths.get(configuration.coverFolder)
+        val coverPath = rootPath.resolve("${book.isbn}.jpg")
+
+        if (Files.notExists(coverPath)) {
+            try {
+                val bytes = URL(book.imageUrl)
+                        .openConnection().apply {
+                            setRequestProperty("User-Agent", "Mozilla/5.0")
+                        }
+                        .getInputStream()
+                        .readBytes()
+                Files.write(coverPath, bytes, StandardOpenOption.CREATE)
+            } catch (e: Exception) {
+                logger.info(
+                        "Error downloading a cover image for ${book.isbn} from '${book.imageUrl}'",
+                        e
+                )
             }
         }
     }

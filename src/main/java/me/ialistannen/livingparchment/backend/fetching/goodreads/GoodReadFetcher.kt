@@ -109,10 +109,12 @@ class GoodReadFetcher : BaseFetcher() {
     }
 
     override fun addExtra(document: Document): Map<String, Any> {
-        val description = (document.getElementById("description")
-                ?.child(1)
+        val descriptionElements = document.getElementById("description")
+                ?.getElementsByTag("span")
+        val description = descriptionElements
+                ?.last()
                 ?.text()
-                ?: return emptyMap())
+                ?: return emptyMap()
         return mapOf("description" to description)
     }
 }

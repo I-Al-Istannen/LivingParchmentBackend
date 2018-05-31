@@ -49,6 +49,5 @@ internal abstract class FetcherTest {
                 "carlsen" in publisher.toLowerCase(),
                 "Publisher is not carlsen (got $publisher)"
         )
-        println(imageUrl)
     }
 }

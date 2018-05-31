@@ -3,6 +3,7 @@ package me.ialistannen.livingparchment.backend.di
 import dagger.BindsInstance
 import dagger.Component
 import me.ialistannen.livingparchment.backend.server.ServerMain
+import me.ialistannen.livingparchment.backend.server.config.LivingParchmentConfiguration
 import me.ialistannen.livingparchment.backend.server.database.ManagedJdbi
 import javax.crypto.spec.SecretKeySpec
 
@@ -26,6 +27,9 @@ abstract class BackendMainComponent {
 
         @BindsInstance
         fun jwtKey(key: SecretKeySpec): Builder
+
+        @BindsInstance
+        fun configuration(config: LivingParchmentConfiguration): Builder
     }
 
     abstract fun inject(serverMain: ServerMain)

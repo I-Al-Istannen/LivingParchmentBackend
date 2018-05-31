@@ -27,6 +27,9 @@ class LivingParchmentConfiguration : Configuration(), AssetsBundleConfiguration 
     @NotEmpty
     lateinit var adminPassword: String
 
+    @NotEmpty
+    lateinit var coverFolder: String
+
     @Valid
     @NotNull
     lateinit var assets: AssetsConfiguration

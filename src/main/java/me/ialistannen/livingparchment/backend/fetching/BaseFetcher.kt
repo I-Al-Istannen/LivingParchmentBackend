@@ -57,6 +57,7 @@ abstract class BaseFetcher : BookFetcher {
         val authors = catchErrors(document, emptyList(), this::extractAuthors)
         val genre = catchErrors(document, emptyList(), this::extractGenre)
         val imageUrl: String? = catchErrors(document, null, this::extractBookImageUrl)
+        val extra: Map<String, Any> = catchErrors(document, emptyMap(), this::addExtra)
 
         return Book(
                 title,
@@ -68,7 +69,7 @@ abstract class BaseFetcher : BookFetcher {
                 imageUrl = imageUrl,
                 authors = authors,
                 genre = genre,
-                extra = addExtra(document)
+                extra = extra
         )
     }
 

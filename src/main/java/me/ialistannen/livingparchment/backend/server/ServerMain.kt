@@ -83,6 +83,7 @@ class ServerMain : Application<LivingParchmentConfiguration>() {
         DaggerBackendMainComponent.builder()
                 .jdbi(managedJdbi)
                 .jwtKey(HmacKey(configuration.getJwtTokenSecret()))
+                .configuration(configuration)
                 .build()
                 .inject(this)
     }
