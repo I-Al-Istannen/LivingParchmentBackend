@@ -1,13 +1,15 @@
 package me.ialistannen.livingparchment.backend.fetching.goodreads
 
 import me.ialistannen.livingparchment.backend.fetching.BaseFetcher
+import me.ialistannen.livingparchment.backend.fetching.Requestor
 import me.ialistannen.livingparchment.backend.util.logger
 import org.jsoup.nodes.Document
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
-class GoodReadFetcher : BaseFetcher() {
+class GoodReadFetcher @Inject constructor(requestor: Requestor) : BaseFetcher(requestor) {
 
     private val logger by logger()
 

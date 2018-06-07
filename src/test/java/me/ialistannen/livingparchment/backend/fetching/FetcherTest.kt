@@ -30,24 +30,5 @@ internal abstract class FetcherTest {
         }
     }
 
-    private fun Book?.isCorrectBook() {
-        Assertions.assertNotNull(this)
-
-        // Smart cast later on
-        this as Book
-
-        Assertions.assertTrue(
-                "antastische Tierwesen und wo sie zu finden sind".toLowerCase()
-                        in title.toLowerCase(),
-                "title differs (got $title)"
-        )
-        Assertions.assertTrue(
-                authors.any { "Rowling" in it } || authors.any { "Scamander" in it },
-                "Rowling is not author (got $authors)"
-        )
-        Assertions.assertTrue(
-                "carlsen" in publisher.toLowerCase(),
-                "Publisher is not carlsen (got $publisher)"
-        )
-    }
+    protected abstract fun Book?.isCorrectBook()
 }

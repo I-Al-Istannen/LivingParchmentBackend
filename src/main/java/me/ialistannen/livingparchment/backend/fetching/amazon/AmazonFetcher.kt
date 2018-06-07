@@ -4,15 +4,16 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.experimental.runBlocking
 import me.ialistannen.livingparchment.backend.fetching.BaseFetcher
 import me.ialistannen.livingparchment.backend.fetching.FetchException
-import me.ialistannen.livingparchment.backend.fetching.WebpageUtil
+import me.ialistannen.livingparchment.backend.fetching.Requestor
 import me.ialistannen.livingparchment.backend.util.logger
 import me.ialistannen.livingparchment.common.serialization.fromJson
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
-class AmazonFetcher : BaseFetcher() {
+class AmazonFetcher @Inject constructor(requestor: Requestor) : BaseFetcher(requestor) {
 
     private val logger by logger()
 
@@ -25,7 +26,7 @@ class AmazonFetcher : BaseFetcher() {
                 .mapNotNull { it.getElementsByClass("a-link-normal").firstOrNull() }
                 .map { it.absUrl("href") }
                 .asSequence()
-                .map { runBlocking { WebpageUtil.getPage(it).await() } }
+                .map { runBlocking { requestor.getPage(it).await() } }
     }
 
     override fun extractTitle(document: Document): String = document

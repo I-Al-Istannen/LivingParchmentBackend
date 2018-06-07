@@ -5,13 +5,13 @@ import me.ialistannen.livingparchment.common.model.Book
 import org.jsoup.nodes.Document
 import java.util.*
 
-abstract class BaseFetcher : BookFetcher {
+abstract class BaseFetcher(protected val requestor: Requestor) : BookFetcher {
 
     private val logger by logger()
 
     override suspend fun fetch(isbn: String): Book? {
         return try {
-            val document = WebpageUtil.getPage(getQueryUrl(isbn)).await()
+            val document = requestor.getPage(getQueryUrl(isbn)).await()
             val toProcess = preprocessQueryPage(document)
 
             toProcess

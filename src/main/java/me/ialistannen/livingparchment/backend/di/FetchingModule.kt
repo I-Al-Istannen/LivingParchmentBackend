@@ -12,5 +12,7 @@ class FetchingModule {
 
     @Provides
     @ApplicationScope
-    fun provideFetchingModule(): BookFetcher = GoodReadFetcher().then(AmazonFetcher())
+    fun provideFetchingModule(goodReadFetcher: GoodReadFetcher,
+                              amazonFetcher: AmazonFetcher): BookFetcher =
+            goodReadFetcher.then(amazonFetcher)
 }
