@@ -227,6 +227,13 @@
       <version>5.2.0-M1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>io.dropwizard</groupId>
+      <artifactId>dropwizard-testing</artifactId>
+      <version>${dropwizard.version}</version>
+      <scope>test</scope>
+    </dependency>
+
 
     <dependency>
       <groupId>com.github.toastshaman</groupId>
