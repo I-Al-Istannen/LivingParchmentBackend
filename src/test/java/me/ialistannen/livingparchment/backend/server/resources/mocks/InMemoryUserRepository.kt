@@ -1,4 +1,4 @@
-package me.ialistannen.livingparchment.backend.server.resources
+package me.ialistannen.livingparchment.backend.server.resources.mocks
 
 import me.ialistannen.livingparchment.backend.server.auth.User
 import me.ialistannen.livingparchment.backend.storage.UserRepository

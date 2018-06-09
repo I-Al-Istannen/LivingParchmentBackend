@@ -4,6 +4,7 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport
 import io.dropwizard.testing.junit5.ResourceExtension
 import kotlinx.coroutines.experimental.runBlocking
 import me.ialistannen.livingparchment.backend.server.auth.User
+import me.ialistannen.livingparchment.backend.server.resources.mocks.InMemoryUserRepository
 import me.ialistannen.livingparchment.backend.storage.UserRepository
 import me.ialistannen.livingparchment.common.api.response.LoginResponse
 import me.ialistannen.livingparchment.common.api.response.LoginStatus

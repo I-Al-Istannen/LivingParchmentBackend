@@ -18,6 +18,8 @@ import me.ialistannen.livingparchment.backend.server.database.ManagedJdbi
 import me.ialistannen.livingparchment.backend.server.health.DatabaseHealthCheck
 import me.ialistannen.livingparchment.backend.server.resources.*
 import me.ialistannen.livingparchment.backend.storage.sql.DatabaseCreator
+import me.ialistannen.livingparchment.backend.util.jackson.BookSerializeMixin
+import me.ialistannen.livingparchment.common.model.Book
 import org.eclipse.jetty.util.component.AbstractLifeCycle
 import org.eclipse.jetty.util.component.LifeCycle
 import org.glassfish.jersey.server.filter.HttpMethodOverrideFilter
@@ -127,7 +129,10 @@ class ServerMain : Application<LivingParchmentConfiguration>() {
     }
 
     override fun initialize(bootstrap: Bootstrap<LivingParchmentConfiguration>) {
-        bootstrap.objectMapper.registerModule(KotlinModule())
+        bootstrap.objectMapper
+                .registerModule(KotlinModule())
+                .addMixIn(Book::class.java, BookSerializeMixin::class.java)
+
 
         bootstrap.addBundle(ConfiguredAssetsBundle())
     }

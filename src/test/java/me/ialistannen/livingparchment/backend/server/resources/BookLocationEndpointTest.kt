@@ -2,7 +2,7 @@ package me.ialistannen.livingparchment.backend.server.resources
 
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport
 import kotlinx.coroutines.experimental.runBlocking
-import me.ialistannen.livingparchment.backend.storage.BookLocationRepository
+import me.ialistannen.livingparchment.backend.server.resources.mocks.InMemoryBookLocationRepository
 import me.ialistannen.livingparchment.common.api.response.*
 import me.ialistannen.livingparchment.common.model.BookLocation
 import org.junit.jupiter.api.AfterEach
@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.util.*
 import javax.ws.rs.client.Entity
 
 @ExtendWith(DropwizardExtensionsSupport::class)
@@ -126,25 +125,4 @@ class BookLocationEndpointTest {
         }
     }
 
-    private class InMemoryBookLocationRepository : BookLocationRepository {
-
-        private val locations = mutableListOf<BookLocation>()
-
-        override suspend fun addLocation(bookLocation: BookLocation) {
-            deleteLocation(bookLocation.uuid)
-            locations.add(bookLocation)
-        }
-
-        override suspend fun deleteLocation(uuid: UUID): Boolean {
-            return locations.removeIf { it.uuid == uuid }
-        }
-
-        override suspend fun getAllLocations(): List<BookLocation> {
-            return ArrayList(locations)
-        }
-
-        override suspend fun getLocation(uuid: UUID): BookLocation? {
-            return locations.firstOrNull { it.uuid == uuid }
-        }
-    }
 }

@@ -3,7 +3,6 @@ package me.ialistannen.livingparchment.backend.server.resources
 import io.dropwizard.jersey.PATCH
 import kotlinx.coroutines.experimental.runBlocking
 import me.ialistannen.livingparchment.backend.fetching.BookFetcher
-import me.ialistannen.livingparchment.backend.server.config.LivingParchmentConfiguration
 import me.ialistannen.livingparchment.backend.storage.BookLocationRepository
 import me.ialistannen.livingparchment.backend.storage.BookRepository
 import me.ialistannen.livingparchment.backend.util.logger
@@ -18,10 +17,10 @@ import me.ialistannen.livingparchment.common.serialization.fromJson
 import org.hibernate.validator.constraints.NotEmpty
 import java.net.URL
 import java.nio.file.Files
-import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 import javax.annotation.security.PermitAll
 import javax.inject.Inject
+import javax.inject.Named
 import javax.validation.constraints.NotNull
 import javax.ws.rs.PUT
 import javax.ws.rs.Path
@@ -35,7 +34,7 @@ class BookAddEndpoint @Inject constructor(
         private val bookRepository: BookRepository,
         private val bookFetcher: BookFetcher,
         private val locationRepository: BookLocationRepository,
-        private val configuration: LivingParchmentConfiguration
+        @Named("coverFolder") private val coverFolder: java.nio.file.Path
 ) {
 
     private val logger by logger()
@@ -109,8 +108,7 @@ class BookAddEndpoint @Inject constructor(
         if (book.imageUrl.isNullOrBlank()) {
             return
         }
-        val rootPath = Paths.get(configuration.coverFolder)
-        val coverPath = rootPath.resolve("${book.isbn}.jpg")
+        val coverPath = coverFolder.resolve("${book.isbn}.jpg")
 
         if (Files.notExists(coverPath)) {
             try {

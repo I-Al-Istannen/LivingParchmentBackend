@@ -1,8 +1,11 @@
 package me.ialistannen.livingparchment.backend.server.resources
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.dropwizard.testing.junit5.ResourceExtension
+import me.ialistannen.livingparchment.backend.util.jackson.BookSerializeMixin
+import me.ialistannen.livingparchment.common.model.Book
 import org.glassfish.jersey.client.ClientProperties
 import javax.ws.rs.client.Entity
 import javax.ws.rs.client.Invocation
@@ -28,7 +31,12 @@ abstract class ResourceTest {
                     .build()
 
     private fun ResourceExtension.Builder.configureBasics(): ResourceExtension.Builder {
-        return setMapper(jacksonObjectMapper().registerModule(KotlinModule()))
+        return setMapper(
+                jacksonObjectMapper()
+                        .registerModule(KotlinModule())
+                        .addMixIn(Book::class.java, BookSerializeMixin::class.java)
+                        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        )
                 .setClientConfigurator {
                     it.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true)
                 }

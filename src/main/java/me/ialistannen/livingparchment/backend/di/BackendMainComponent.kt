@@ -13,7 +13,8 @@ import javax.crypto.spec.SecretKeySpec
     BookLocationRepositoryModule::class,
     UserRepositoryModule::class,
     JdbiModule::class,
-    FetchingModule::class
+    FetchingModule::class,
+    ConfigurationModule::class
 ])
 abstract class BackendMainComponent {
 
