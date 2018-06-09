@@ -7,7 +7,6 @@ import me.ialistannen.livingparchment.backend.server.auth.User
 import me.ialistannen.livingparchment.backend.storage.UserRepository
 import me.ialistannen.livingparchment.common.api.response.LoginResponse
 import me.ialistannen.livingparchment.common.api.response.LoginStatus
-import me.ialistannen.livingparchment.common.serialization.fromJson
 import org.jose4j.keys.HmacKey
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
@@ -15,31 +14,24 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mindrot.jbcrypt.BCrypt
 import java.util.concurrent.ThreadLocalRandom
-import javax.crypto.spec.SecretKeySpec
-import javax.ws.rs.client.Entity
-import javax.ws.rs.core.MultivaluedHashMap
 
 @ExtendWith(DropwizardExtensionsSupport::class)
 internal class UserLoginEndpointTest {
 
-    companion object {
-        private var secretKey: SecretKeySpec
-        private var endpoint: UserLoginEndpoint
+    companion object : ResourceTest() {
         private var userRepository: UserRepository = InMemoryUserRepository()
+        override val endpoint: UserLoginEndpoint = createEndpoint()
 
-        private var testRule: ResourceExtension
+        override val extension: ResourceExtension = extension()
 
-        init {
+        override val path: String = "/login"
+
+        private fun createEndpoint(): UserLoginEndpoint {
             val keyBytes = ByteArray(255).apply {
                 ThreadLocalRandom.current().nextBytes(this)
             }
 
-            secretKey = HmacKey(keyBytes)
-            endpoint = UserLoginEndpoint(userRepository, secretKey)
-
-            testRule = ResourceExtension.builder()
-                    .addResource(endpoint)
-                    .build()
+            return UserLoginEndpoint(userRepository, HmacKey(keyBytes))
         }
     }
 
@@ -83,14 +75,9 @@ internal class UserLoginEndpointTest {
     }
 
     private fun makePost(name: String, password: String): LoginResponse {
-        return testRule.target("/login").request().post(
-                Entity.form(MultivaluedHashMap(mapOf(
-                        "name" to name,
-                        "password" to password
-                )))
-        )
-                .readEntity(String::class.java)
-                .fromJson()
+        return makeCall {
+            post(form("name" to name, "password" to password))
+        }
     }
 
     private fun addUser(name: String, password: String) {

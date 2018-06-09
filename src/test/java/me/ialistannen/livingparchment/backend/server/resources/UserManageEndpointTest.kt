@@ -8,8 +8,6 @@ import me.ialistannen.livingparchment.common.api.response.UserAddResponse
 import me.ialistannen.livingparchment.common.api.response.UserAddStatus
 import me.ialistannen.livingparchment.common.api.response.UserDeleteResponse
 import me.ialistannen.livingparchment.common.api.response.UserDeleteStatus
-import me.ialistannen.livingparchment.common.serialization.fromJson
-import org.glassfish.jersey.client.ClientProperties
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -17,31 +15,17 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mindrot.jbcrypt.BCrypt
 import java.nio.charset.Charset
 import java.util.concurrent.ThreadLocalRandom
-import javax.ws.rs.client.Entity
-import javax.ws.rs.client.Invocation
-import javax.ws.rs.core.Form
-import javax.ws.rs.core.MultivaluedHashMap
-import javax.ws.rs.core.Response
 
 @ExtendWith(DropwizardExtensionsSupport::class)
 internal class UserManageEndpointTest {
 
-    companion object {
-        private var endpoint: UserManageEndpoint
+    companion object : ResourceTest() {
         private val userRepository = InMemoryUserRepository()
+        override var endpoint: UserManageEndpoint = UserManageEndpoint(userRepository)
 
-        private val testExtension: ResourceExtension
+        override val extension: ResourceExtension = extension()
 
-        init {
-            endpoint = UserManageEndpoint(userRepository)
-
-            testExtension = ResourceExtension.builder()
-                    .addResource(endpoint)
-                    .setClientConfigurator {
-                        it.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true)
-                    }
-                    .build()
-        }
+        override val path: String = "/admin/users"
     }
 
     @AfterEach
@@ -124,18 +108,6 @@ internal class UserManageEndpointTest {
             assertTrue(BCrypt.checkpw(password, user.passwordHash), "Password wrong")
             assertEquals(role, user.role)
         }
-    }
-
-    private fun form(vararg entries: Pair<String, String>): Entity<Form>? {
-        return Entity.form(MultivaluedHashMap(entries.toMap()))
-    }
-
-    private inline fun <reified T> makeCall(action: Invocation.Builder.() -> Response): T {
-        return testExtension.target("/admin/users")
-                .request()
-                .action()
-                .readEntity(String::class.java)
-                .fromJson()
     }
 
     private fun generateRandomPasswordHash(): String {
