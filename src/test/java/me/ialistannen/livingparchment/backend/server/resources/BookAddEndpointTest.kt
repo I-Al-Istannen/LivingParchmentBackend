@@ -60,16 +60,9 @@ class BookAddEndpointTest {
 
         private inline fun <reified T> makePatch(path: String, entity: Any,
                                                  vararg queryParams: Pair<String, String>): T {
-            var target = extension.target(path)
-
-            queryParams.forEach {
-                target = target.queryParam(it.first, it.second)
+            return super.makeCall(extension, path, queryParams.toList()) {
+                method("PATCH", Entity.json(entity))
             }
-
-            return target
-                    .request()
-                    .method("PATCH", Entity.json(entity))
-                    .readEntity(T::class.java)
         }
 
         @JvmStatic

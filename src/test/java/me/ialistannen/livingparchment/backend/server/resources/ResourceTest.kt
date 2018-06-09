@@ -51,8 +51,13 @@ abstract class ResourceTest {
      * @return the result of the call
      */
     protected inline fun <reified T> makeCall(resourceExtension: ResourceExtension, path: String,
-                                              action: Invocation.Builder.() -> Response): T {
-        return resourceExtension.target(path)
+                                              queryParams: List<Pair<String, String>> = emptyList(),
+                                              action: Invocation.Builder .() -> Response): T {
+        var target = resourceExtension.target(path)
+
+        queryParams.forEach { target = target.queryParam(it.first, it.second) }
+
+        return target
                 .request()
                 .action()
                 .readEntity(T::class.java)
@@ -64,8 +69,9 @@ abstract class ResourceTest {
      * @param action the call to make
      * @return the result of the call
      */
-    protected inline fun <reified T> makeCall(action: Invocation.Builder.() -> Response): T {
-        return makeCall(extension, path, action)
+    protected inline fun <reified T> makeCall(queryParams: List<Pair<String, String>> = emptyList(),
+                                              action: Invocation.Builder.() -> Response): T {
+        return makeCall(extension, path, queryParams, action)
     }
 
     /**
